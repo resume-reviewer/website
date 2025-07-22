@@ -99,3 +99,44 @@ export const truncateText = (text: string, maxLength: number): string => {
   if (text.length <= maxLength) return text;
   return text.slice(0, maxLength).trim() + '...';
 };
+
+export interface InterviewQuestion {
+  question: string;
+}
+
+// Metrik analisis real-time dari klien
+export interface RealTimeAnalysis {
+  speechPace: number; // Kata per menit
+  volumeLevel: number; // Nilai normalisasi 0-1
+  eyeContactPercentage: number; // Persentase waktu mata terdeteksi dan melihat ke depan
+  headMovement: number; // Metrik seberapa banyak kepala bergerak
+}
+
+// Payload yang dikirim ke API untuk setiap jawaban
+export interface AnswerPayload {
+  question: string;
+  transcribedAnswer: string;
+  analysis: RealTimeAnalysis;
+}
+
+// Umpan balik dari AI untuk setiap jawaban
+export interface AnswerFeedback {
+  feedback: string;
+  nextQuestion: string;
+}
+
+// Ringkasan akhir wawancara yang komprehensif
+export interface InterviewSummary {
+  overallFeedback: string;
+  strengths: string[];
+  areasForImprovement: {
+    content: string[]; // Umpan balik pada isi jawaban
+    delivery: string[]; // Umpan balik pada nada & bahasa tubuh
+  };
+  performanceMetrics: {
+    question: string;
+    speechPace: number;
+    volumeLevel: number;
+    eyeContactPercentage: number;
+  }[];
+}
