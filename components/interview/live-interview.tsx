@@ -97,7 +97,6 @@ export default function LiveInterview({
   };
   
   if (!isEngineReady) {
-    // Tampilkan pesan status yang lebih informatif
     return <div className="text-center p-8">{engineStatus}</div>
   }
 

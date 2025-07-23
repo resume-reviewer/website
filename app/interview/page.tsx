@@ -1,18 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import dynamic from 'next/dynamic'; // <-- Impor dynamic dari Next.js
+import dynamic from 'next/dynamic';
 import InterviewSetup from '@/components/interview/interview-setup';
 import FeedbackSummary from '@/components/interview/feedback-summary';
 import { JobDetails, InterviewSummary } from '@/lib/types-and-utils';
 
-// --- INI ADALAH PERUBAHAN KUNCI ---
-// Kita membuat versi dinamis dari LiveInterview
 const LiveInterview = dynamic(
   () => import('@/components/interview/live-interview'),
   { 
-    ssr: false, // <-- Ini secara eksplisit menonaktifkan Server-Side Rendering untuk komponen ini
-    loading: () => <p className="text-center p-8">Loading Interview Component...</p> // <-- (Opsional) Tampilkan pesan loading
+    ssr: false,
+    loading: () => <p className="text-center p-8">Loading Interview Component...</p> 
   } 
 );
 // ---------------------------------

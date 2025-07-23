@@ -1,7 +1,4 @@
-// /lib/useInterviewEngine.ts
-
 import { useState, useRef, useCallback, useEffect } from 'react';
-// --- Perubahan Import Utama ---
 import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 import '@tensorflow/tfjs-backend-webgl';
 
@@ -17,7 +14,7 @@ export function useInterviewEngine() {
   const streamRef = useRef<MediaStream | null>(null);
   
   // Ref untuk model dan API
-  const landmarkerRef = useRef<FaceLandmarker | null>(null); // Menggunakan tipe FaceLandmarker
+  const landmarkerRef = useRef<FaceLandmarker | null>(null); 
   const recognitionRef = useRef<any>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -36,7 +33,6 @@ export function useInterviewEngine() {
   const initialize = useCallback(async () => {
     try {
       setEngineStatus('Loading vision models...');
-      // --- Logika Loading Model yang Baru dengan MediaPipe Tasks ---
       const vision = await FilesetResolver.forVisionTasks(
         "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
       );
@@ -49,7 +45,6 @@ export function useInterviewEngine() {
         numFaces: 1,
       });
       landmarkerRef.current = landmarker;
-      // -----------------------------------------------------------
 
       setEngineStatus('Requesting camera and microphone access...');
       // Setup Media Stream (Video & Audio)
@@ -77,7 +72,7 @@ export function useInterviewEngine() {
         recog.continuous = true;
         recog.interimResults = true;
 
-        // Event handler onresult (tetap sama)
+        // Event handler onresult
         recog.onresult = (event) => {
           let finalTranscript = '';
           for (let i = event.resultIndex; i < event.results.length; ++i) {
@@ -91,7 +86,6 @@ export function useInterviewEngine() {
           }
         };
 
-        // --- TAMBAHKAN EVENT HANDLER INI ---
         recog.onstart = () => {
           console.log("Speech recognition has started."); // LOG 3
         };
@@ -105,21 +99,19 @@ export function useInterviewEngine() {
         };
 
         recog.onerror = (event) => {
-          console.error("Speech recognition error:", event.error); // LOG 5: INI SANGAT PENTING!
+          console.error("Speech recognition error:", event.error); // LOG 5
           if (event.error === 'not-allowed') {
             setEngineStatus("Microphone access was denied. Please allow microphone access in your browser settings.");
           } else {
             setEngineStatus(`Speech recognition error: ${event.error}`);
           }
         };
-        // ------------------------------------
 
         recognitionRef.current = recog;
       } else {
         console.error("Speech Recognition API is NOT supported by this browser."); // LOG 6
         setEngineStatus("Speech recognition is not supported by your browser. Please use Google Chrome or Microsoft Edge.");
       }
-      // ------------------------------------
       
       setIsEngineReady(true);
       setEngineStatus('Ready');
@@ -127,26 +119,29 @@ export function useInterviewEngine() {
       console.error("Failed to initialize interview engine:", error);
       setEngineStatus('Error initializing engine. Please check permissions and console.');
     }
-  }, [isListening]); // <-- Tambahkan isListening sebagai dependensi
+  }, [isListening]);
 
-  // Loop analisis
   const analysisLoop = useCallback(() => {
-    if (!landmarkerRef.current || !videoRef.current || !analyserRef.current || videoRef.current.paused || videoRef.current.ended) {
+    if (
+      !landmarkerRef.current || 
+      !videoRef.current || 
+      !analyserRef.current || 
+      videoRef.current.paused || 
+      videoRef.current.ended ||
+      videoRef.current.readyState < 3
+    ) {
       analysisFrameId.current = requestAnimationFrame(analysisLoop);
       return;
     }
 
-    // --- Logika Estimasi Wajah yang Baru ---
     const startTimeMs = performance.now();
     const results = landmarkerRef.current.detectForVideo(videoRef.current, startTimeMs);
-    // ------------------------------------
 
     if (results.faceLandmarks && results.faceLandmarks.length > 0) {
       metrics.eyeContactFrames++;
     }
     metrics.totalFrames++;
 
-    // Analisis Audio (Volume)
     const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
     analyserRef.current.getByteFrequencyData(dataArray);
     let sum = 0;
@@ -157,9 +152,8 @@ export function useInterviewEngine() {
     metrics.volumeCount++;
 
     analysisFrameId.current = requestAnimationFrame(analysisLoop);
-  }, [metrics]);
+}, [metrics]);
 
-  // Fungsi lainnya tetap sama
   const startAnswering = useCallback(() => {
     if (!isEngineReady) return;
     setTranscribedText('');
@@ -171,7 +165,6 @@ export function useInterviewEngine() {
   }, [isEngineReady, metrics, analysisLoop]);
 
   const stopAnswering = useCallback(() => {
-    // ... (Fungsi ini tidak perlu diubah)
     if (!isEngineReady) return;
     recognitionRef.current?.stop();
     if (analysisFrameId.current) {
