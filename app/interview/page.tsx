@@ -2,9 +2,20 @@
 
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
-import InterviewSetup from '@/components/interview/interview-setup';
-import FeedbackSummary from '@/components/interview/feedback-summary';
 import { JobDetails, InterviewSummary } from '@/lib/types-and-utils';
+
+// Use dynamic imports for all components to prevent hydration issues
+const InterviewSetup = dynamic(
+  () => import('@/components/interview/interview-setup'),
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="max-w-2xl mx-auto p-6">
+        <div className="animate-pulse bg-gray-200 rounded-lg h-96"></div>
+      </div>
+    )
+  }
+);
 
 const LiveInterview = dynamic(
   () => import('@/components/interview/live-interview'),
@@ -12,6 +23,18 @@ const LiveInterview = dynamic(
     ssr: false,
     loading: () => <p className="text-center p-8">Loading Interview Component...</p> 
   } 
+);
+
+const FeedbackSummary = dynamic(
+  () => import('@/components/interview/feedback-summary'),
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="max-w-4xl mx-auto p-6">
+        <div className="animate-pulse bg-gray-200 rounded-lg h-96"></div>
+      </div>
+    )
+  }
 );
 // ---------------------------------
 

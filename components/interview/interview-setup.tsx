@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { JobDetails } from '@/lib/types-and-utils';
 
 interface InterviewSetupProps {
@@ -8,6 +8,7 @@ interface InterviewSetupProps {
 }
 
 export default function InterviewSetup({ onSetupComplete }: InterviewSetupProps) {
+  const [mounted, setMounted] = useState(false);
   const [jobDetails, setJobDetails] = useState<JobDetails>({
     jobTitle: '',
     company: '',
@@ -18,8 +19,17 @@ export default function InterviewSetup({ onSetupComplete }: InterviewSetupProps)
   });
   const [error, setError] = useState('');
 
+  // Prevent hydration mismatch by only rendering after client mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const handleInputChange = (field: keyof JobDetails, value: string) => {
     setJobDetails(prev => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (error) {
+      setError('');
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -31,6 +41,15 @@ export default function InterviewSetup({ onSetupComplete }: InterviewSetupProps)
     setError('');
     onSetupComplete(jobDetails);
   };
+
+  // Show loading state until component is mounted to prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <div className="max-w-2xl mx-auto p-6">
+        <div className="animate-pulse bg-gray-200 rounded-lg h-96"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg">
