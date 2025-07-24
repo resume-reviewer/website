@@ -140,3 +140,32 @@ export interface InterviewSummary {
     eyeContactPercentage: number;
   }[];
 }
+
+export interface JobApplication {
+  id?: string;
+  user_id?: string;
+  job_title: string; 
+  company_name: string; 
+  location: string;
+  job_url: string;
+  job_description: string;
+  notes: string;
+  application_deadline: string;
+  status: 'Saved' | 'Applied' | 'Interview' | 'Offer' | 'Rejected'; 
+  created_at?: string;
+  language?: 'en' | 'id';
+  // --- TAMBAHAN BARU DARI FORM ---
+  priority?: 'high' | 'medium' | 'low';
+  salary?: string;
+}
+
+// Tambahkan tipe untuk dokumen, yang merefleksikan tabel Supabase Anda
+export interface UserDocument {
+  id: string;
+  user_id: string;
+  job_id?: string; // job_id bisa null
+  file_name: string;
+  file_path: string;
+  document_type: string;
+  created_at: string;
+}

@@ -2,50 +2,30 @@
 
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
-import { JobDetails, InterviewSummary } from '@/lib/types-and-utils';
+import Link from 'next/link';
+// --- GANTI TIPE IMPORT ---
+import { JobApplication, InterviewSummary } from '@/lib/types-and-utils'; 
+import { signOut, useSession } from 'next-auth/react';
+import { FaRocket, FaThLarge, FaPlusCircle, FaFolder, FaBrain, FaChartLine, FaCrown, FaCog } from 'react-icons/fa';
+import Sidebar from '@/components/layout/Sidebar';
 
-// Use dynamic imports for all components to prevent hydration issues
-const InterviewSetup = dynamic(
-  () => import('@/components/interview/interview-setup'),
-  { 
-    ssr: false,
-    loading: () => (
-      <div className="max-w-2xl mx-auto p-6">
-        <div className="animate-pulse bg-gray-200 rounded-lg h-96"></div>
-      </div>
-    )
-  }
-);
+// Definisikan tipe konteks di sini atau impor
+type InterviewContext = Pick<JobApplication, 'job_title' | 'company_name' | 'job_description' | 'language'>;
 
-const LiveInterview = dynamic(
-  () => import('@/components/interview/live-interview'),
-  { 
-    ssr: false,
-    loading: () => <p className="text-center p-8">Loading Interview Component...</p> 
-  } 
-);
-
-const FeedbackSummary = dynamic(
-  () => import('@/components/interview/feedback-summary'),
-  { 
-    ssr: false,
-    loading: () => (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="animate-pulse bg-gray-200 rounded-lg h-96"></div>
-      </div>
-    )
-  }
-);
-// ---------------------------------
+const InterviewSetup = dynamic(() => import('@/components/interview/interview-setup'), { ssr: false });
+const LiveInterview = dynamic(() => import('@/components/interview/live-interview'), { ssr: false });
+const FeedbackSummary = dynamic(() => import('@/components/interview/feedback-summary'), { ssr: false });
 
 type InterviewStage = 'setup' | 'live' | 'feedback';
 
 export default function MockInterviewPage() {
+  const { data: session } = useSession();
   const [stage, setStage] = useState<InterviewStage>('setup');
-  const [interviewContext, setInterviewContext] = useState<JobDetails | null>(null);
+  // --- GUNAKAN TIPE BARU UNTUK STATE ---
+  const [interviewContext, setInterviewContext] = useState<InterviewContext | null>(null);
   const [interviewSummary, setInterviewSummary] = useState<InterviewSummary | null>(null);
 
-  const handleSetupComplete = (context: JobDetails) => {
+  const handleSetupComplete = (context: InterviewContext) => {
     setInterviewContext(context);
     setStage('live');
   };
@@ -61,36 +41,25 @@ export default function MockInterviewPage() {
     setInterviewSummary(null);
   };
 
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            AI Mock Interview
-          </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Practice answering interview questions and get real-time feedback.
-          </p>
+    <div className='flex'>
+      <Sidebar />
+
+      {/* Main Content */}
+      <main className="main-content">
+        <div className="header">
+          <div className="header-left">
+            <h1 className="header-title">AI Mock Interview</h1>
+            <p className="header-subtitle">Practice answering questions and get instant feedback</p>
+          </div>
         </div>
-
-        {stage === 'setup' && (
-          <InterviewSetup onSetupComplete={handleSetupComplete} />
-        )}
-
-        {stage === 'live' && interviewContext && (
-          <LiveInterview
-            interviewContext={interviewContext}
-            onInterviewComplete={handleInterviewComplete}
-          />
-        )}
-
-        {stage === 'feedback' && interviewSummary && (
-          <FeedbackSummary
-            summary={interviewSummary}
-            onStartOver={handleStartOver}
-          />
-        )}
-      </div>
+        <div className="p-8">
+          {stage === 'setup' && <InterviewSetup onSetupComplete={handleSetupComplete} />}
+          {stage === 'live' && interviewContext && <LiveInterview interviewContext={interviewContext} onInterviewComplete={handleInterviewComplete} />}
+          {stage === 'feedback' && interviewSummary && <FeedbackSummary summary={interviewSummary} onStartOver={handleStartOver} />}
+        </div>
+      </main>
     </div>
   );
 }

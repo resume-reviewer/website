@@ -1,14 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { JobDetails, InterviewSummary, AnswerPayload } from '@/lib/types-and-utils';
+import { JobApplication, InterviewSummary, AnswerPayload } from '@/lib/types-and-utils';
 import { useInterviewEngine } from '@/lib/useInterviewEngine';
+
+type InterviewContext = Pick<JobApplication, 'job_title' | 'company_name' | 'job_description' | 'language'>;
 
 export default function LiveInterview({
   interviewContext,
   onInterviewComplete,
 }: {
-  interviewContext: JobDetails;
+  interviewContext: InterviewContext; // <-- Gunakan tipe yang benar
   onInterviewComplete: (summary: InterviewSummary) => void;
 }) {
   const [currentQuestion, setCurrentQuestion] = useState('');
@@ -39,7 +41,7 @@ export default function LiveInterview({
       const response = await fetch('/api/interview/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ jobDetails: interviewContext }),
+        body: JSON.stringify({ jobDetails: interviewContext, language: interviewContext.language }),
       });
       const data = await response.json();
       setCurrentQuestion(data.question);
@@ -71,6 +73,7 @@ export default function LiveInterview({
           jobDetails: interviewContext,
           answerPayload: payload,
           history: interviewHistory,
+          language: interviewContext.language, // <-- KIRIM BAHASA
         }),
       });
       const data = await response.json();
@@ -90,7 +93,10 @@ export default function LiveInterview({
     const response = await fetch('/api/interview/end', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ history: finalHistory }),
+      body: JSON.stringify({ 
+        history: finalHistory, 
+        language: interviewContext.language // <-- KIRIM BAHASA
+      }),
     });
     const summary = await response.json();
     onInterviewComplete(summary);
