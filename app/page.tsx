@@ -1,4 +1,5 @@
 import { FaRocket, FaTasks, FaFileAlt, FaMicrophone, FaCheck } from "react-icons/fa"
+import Image from "next/image"
 
 export default function Home() {
   return (
@@ -7,12 +8,13 @@ export default function Home() {
       <header className="fixed w-full z-50 bg-white/90 backdrop-blur-xl border-b border-slate-200/50">
         <nav className="container mx-auto flex justify-between items-center py-4 px-4 max-w-6xl">
           <div className="flex items-center gap-3 font-extrabold text-2xl">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#7DD5DB] to-[#3B6597] flex items-center justify-center">
-              <FaRocket className="text-white text-lg" />
-            </div>
-            <span className="bg-gradient-to-r from-[#3B6597] to-[#7DD5DB] bg-clip-text text-transparent">
-              CareerPilot
-            </span>
+            <Image 
+                          src="/media/logo.png" 
+                          alt="CareerPilot Logo" 
+                          width={160} 
+                          height={40}
+                          className="object-contain"
+                        />
           </div>
           <ul className="hidden md:flex gap-8 text-slate-600 font-medium">
             <li>
