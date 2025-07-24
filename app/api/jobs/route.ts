@@ -2,8 +2,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '../auth/[...nextauth]/route';
-import { createClient } from '@supabase/supabase-js'; // <-- Import createClient
+import { authOptions } from '@/lib/auth';
+import { createClient } from '@supabase/supabase-js';
 import { JobApplication } from '@/lib/types-and-utils';
 
 export async function GET(request: NextRequest) {

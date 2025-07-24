@@ -1,27 +1,14 @@
 // File: /lib/custom-types.d.ts
 
-import 'next-auth';
+// File ini adalah sebuah MODUL karena memiliki import.
+// Tujuannya hanya untuk memperluas (augment) modul 'next-auth' dan 'next-auth/jwt'.
+
+import type { DefaultSession } from 'next-auth';
 import 'next-auth/jwt';
 
-// Kode SpeechRecognition Anda yang sudah ada
-interface Window {
-  SpeechRecognition: typeof SpeechRecognition;
-  webkitSpeechRecognition: typeof SpeechRecognition;
-}
-interface SpeechRecognitionEvent extends Event {
-  readonly resultIndex: number;
-  readonly results: SpeechRecognitionResultList;
-}
-interface SpeechRecognitionErrorEvent extends Event {
-  readonly error: string;
-  readonly message: string;
-}
-
-
-// --- MODIFIKASI TIPE NEXTAUTH ---
 declare module 'next-auth' {
   /**
-   * Mendefinisikan ulang tipe User, Session agar sesuai dengan kebutuhan kita
+   * Mendefinisikan ulang tipe User dan Session
    */
   interface User {
     id: string;
