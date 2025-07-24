@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     // LOG 1: Tampilkan semua data yang masuk dari frontend
     console.log("Received data on /api/interview/answer:", JSON.stringify(body, null, 2));
 
-    const { jobDetails, answerPayload, history } = body;
+    const { jobDetails, answerPayload, language } = body;
     const { question, transcribedAnswer, analysis } = answerPayload;
 
     if (!question || !transcribedAnswer || !analysis || !jobDetails) {
@@ -31,8 +31,10 @@ export async function POST(request: NextRequest) {
       - Eye Contact: Maintained for ${analysis.eyeContactPercentage.toFixed(0)}% of the time.
 
       Instructions:
-      1.  Provide immediate, concise feedback on BOTH the content of the answer AND their delivery (tone, pace, confidence inferred from data).
+      1.  Provide immediate, concise feedback on BOTH the content of the answer AND their delivery (tone, pace, confidence).
       2.  Generate a relevant follow-up question. If you have asked more than 4 questions, respond with "END_OF_INTERVIEW" for the next question.
+      
+      IMPORTANT: Provide all feedback and the next question in this language: ${language === 'id' ? 'Indonesian' : 'English'}.
 
       Return the response STRICTLY in the following JSON format, with no extra text or markdown:
       {

@@ -144,13 +144,14 @@ export interface InterviewSummary {
 export interface JobApplication {
   id?: string;
   user_id?: string;
-  job_title: string; // Ubah dari jobTitle menjadi job_title agar cocok dengan database
-  company_name: string; // Ubah dari companyName menjadi company_name
+  job_title: string; 
+  company_name: string; 
   location: string;
   job_url: string;
   job_description: string;
   notes: string;
   application_deadline: string | null;
-  status: 'Saved' | 'Applied' | 'Interview' | 'Offer' | 'Rejected'; // Tambahkan status
+  status: 'Saved' | 'Applied' | 'Interview' | 'Offer' | 'Rejected'; 
   created_at?: string;
+  language?: 'en' | 'id';
 }

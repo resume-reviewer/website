@@ -1,89 +1,89 @@
+// File: /components/interview/interview-setup.tsx
+
 'use client';
 
 import { useState, useEffect } from 'react';
-import { JobDetails } from '@/lib/types-and-utils';
+import { JobApplication } from '@/lib/types-and-utils';
+import { FaFlagUsa, FaGlobeAsia } from 'react-icons/fa';
+
+// Tipe untuk konteks wawancara, yang merupakan bagian dari JobApplication
+type InterviewContext = Pick<JobApplication, 'job_title' | 'company_name' | 'job_description' | 'language'>;
 
 interface InterviewSetupProps {
-  onSetupComplete: (context: JobDetails) => void;
+  onSetupComplete: (context: InterviewContext) => void;
 }
 
 export default function InterviewSetup({ onSetupComplete }: InterviewSetupProps) {
-  const [mounted, setMounted] = useState(false);
-  const [jobDetails, setJobDetails] = useState<JobDetails>({
-    jobTitle: '',
-    company: '',
-    jobDescription: '',
-    requiredSkills: '',
-    experienceLevel: '',
-    industry: '',
+  const [context, setContext] = useState<Omit<InterviewContext, 'language'>>({
+    job_title: '',
+    company_name: '',
+    job_description: '',
   });
+  const [language, setLanguage] = useState<'en' | 'id'>('en');
   const [error, setError] = useState('');
 
-  // Prevent hydration mismatch by only rendering after client mount
+  // Cek localStorage untuk data dari Job Tracker
   useEffect(() => {
-    setMounted(true);
+    const savedContext = localStorage.getItem('interview_job_context');
+    if (savedContext) {
+      const parsedContext: Partial<JobApplication> = JSON.parse(savedContext);
+      setContext({
+        job_title: parsedContext.job_title || '',
+        company_name: parsedContext.company_name || '',
+        job_description: parsedContext.job_description || '',
+      });
+      localStorage.removeItem('interview_job_context');
+    }
   }, []);
 
-  const handleInputChange = (field: keyof JobDetails, value: string) => {
-    setJobDetails(prev => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
-    if (error) {
-      setError('');
-    }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setContext(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!jobDetails.jobTitle || !jobDetails.jobDescription) {
-      setError('Job Title and Job Description are required to start.');
+    if (!context.job_title || !context.job_description) {
+      setError('Job Title and Job Description are required.');
       return;
     }
     setError('');
-    onSetupComplete(jobDetails);
+    // Kirim objek konteks lengkap
+    onSetupComplete({ ...context, language });
   };
 
-  // Show loading state until component is mounted to prevent hydration mismatch
-  if (!mounted) {
-    return (
-      <div className="max-w-2xl mx-auto p-6">
-        <div className="animate-pulse bg-gray-200 rounded-lg h-96"></div>
-      </div>
-    );
-  }
+  const inputStyle = "w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition";
+  const labelStyle = "block text-sm font-semibold text-gray-700 mb-2";
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">Set Interview Context</h2>
-      <p className="text-gray-600 mb-6">Provide details about the role you are interviewing for to get tailored questions.</p>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="max-w-4xl mx-auto p-8 bg-white rounded-2xl shadow-lg border-t-4 border-indigo-500">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Job Title *</label>
-          <input
-            type="text"
-            value={jobDetails.jobTitle}
-            onChange={(e) => handleInputChange('jobTitle', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="e.g., Software Engineer"
-            required
-          />
+          <h3 className={labelStyle}>Interview Language</h3>
+          <div className="flex gap-4">
+            <button type="button" onClick={() => setLanguage('en')} className={`flex-1 p-4 rounded-lg border-2 transition ${language === 'en' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-300'}`}>
+              <FaFlagUsa className="mx-auto mb-2 text-2xl text-red-600"/> English
+            </button>
+            <button type="button" onClick={() => setLanguage('id')} className={`flex-1 p-4 rounded-lg border-2 transition ${language === 'id' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-300'}`}>
+              <FaGlobeAsia className="mx-auto mb-2 text-2xl text-green-600"/> Bahasa Indonesia
+            </button>
+          </div>
         </div>
+
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Job Description *</label>
-          <textarea
-            value={jobDetails.jobDescription}
-            onChange={(e) => handleInputChange('jobDescription', e.target.value)}
-            rows={5}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Paste the job description here..."
-            required
-          />
+          <label htmlFor="job_title" className={labelStyle}>Job Title *</label>
+          <input type="text" name="job_title" id="job_title" value={context.job_title} onChange={handleInputChange} required className={inputStyle} placeholder="e.g., Software Engineer"/>
         </div>
-        {error && <p className="text-red-500 text-sm">{error}</p>}
+
+        <div>
+          <label htmlFor="job_description" className={labelStyle}>Job Description *</label>
+          <textarea name="job_description" id="job_description" value={context.job_description} onChange={handleInputChange} required rows={8} className={inputStyle} placeholder="Paste job description here..."></textarea>
+        </div>
+
+        {error && <p className="text-red-600 bg-red-100 p-3 rounded-md">{error}</p>}
+        
         <div className="flex justify-end">
-          <button
-            type="submit"
-            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
+          <button type="submit" className="add-job-btn">
             Start Interview
           </button>
         </div>

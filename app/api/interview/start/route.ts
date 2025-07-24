@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'AI service is not configured.' }, { status: 500 });
     }
 
-    const { jobDetails } = await request.json();
+    const { jobDetails, language } = await request.json();
 
     if (!jobDetails || !jobDetails.jobTitle || !jobDetails.jobDescription) {
       return NextResponse.json({ error: 'Job details are required' }, { status: 400 });
@@ -21,7 +21,10 @@ export async function POST(request: NextRequest) {
       Based on the following job details, generate the first interview question.
       Job Title: ${jobDetails.jobTitle}
       Job Description: ${jobDetails.jobDescription}
+      
       The question should be a common opening question for this role.
+      IMPORTANT: Generate the question in this language: ${language === 'id' ? 'Indonesian' : 'English'}.
+
       Return the response in JSON format: {"question": "Your generated question here"}
     `;
 
