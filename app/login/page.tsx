@@ -6,6 +6,8 @@ import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { FaRocket, FaEye, FaEyeSlash } from "react-icons/fa"
 import Link from "next/link"
+import Image from "next/image"
+
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -46,14 +48,13 @@ export default function LoginPage() {
 
       <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-12 w-full max-w-md border border-white/20 relative z-10">
         {/* Logo */}
-        <div className="flex items-center gap-3 justify-center mb-8">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#7DD5DB] to-[#3B6597] flex items-center justify-center shadow-lg">
-            <FaRocket className="text-white text-xl" />
-          </div>
-          <span className="font-black text-2xl bg-gradient-to-r from-[#3B6597] to-[#7DD5DB] bg-clip-text text-transparent">
-            CareerPilot
-          </span>
-        </div>
+        <Image
+          src="/media/logo.png"
+          alt="CareerPilot Logo"
+          width={160}
+          height={40}
+          className="object-contain"
+        />
 
         {/* Header */}
         <div className="text-center mb-8">
