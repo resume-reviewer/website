@@ -1,175 +1,371 @@
-import { FaRocket, FaTasks, FaFileAlt, FaMicrophone, FaCheck } from "react-icons/fa";
+import { FaRocket, FaTasks, FaFileAlt, FaMicrophone, FaCheck } from "react-icons/fa"
 
 export default function Home() {
   return (
-    <div className="font-sans bg-gradient-to-b from-[#f5f7fa] to-[#c3cfe2] min-h-screen text-[#333]">
+    <div className="font-sans bg-gradient-to-br from-slate-50 via-cyan-50 to-blue-50 min-h-screen text-slate-800">
       {/* Header */}
-      <header className="fixed w-full z-50 bg-white/95 backdrop-blur-[20px] border-b border-black/5">
+      <header className="fixed w-full z-50 bg-white/90 backdrop-blur-xl border-b border-slate-200/50">
         <nav className="container mx-auto flex justify-between items-center py-4 px-4 max-w-6xl">
-          <div className="flex items-center gap-2 font-extrabold text-2xl bg-gradient-to-r from-[#667eea] to-[#764ba2] bg-clip-text text-transparent">
-            <FaRocket className="text-[#667eea]" />
-            CareerPilot
+          <div className="flex items-center gap-3 font-extrabold text-2xl">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#7DD5DB] to-[#3B6597] flex items-center justify-center">
+              <FaRocket className="text-white text-lg" />
+            </div>
+            <span className="bg-gradient-to-r from-[#3B6597] to-[#7DD5DB] bg-clip-text text-transparent">
+              CareerPilot
+            </span>
           </div>
-          <ul className="hidden md:flex gap-8 text-[#666] font-medium">
-            <li><a href="#features" className="hover:text-[#667eea] transition-all hover:-translate-y-0.5">Features</a></li>
-            <li><a href="#pricing" className="hover:text-[#667eea] transition-all hover:-translate-y-0.5">Pricing</a></li>
-            <li><a href="#about" className="hover:text-[#667eea] transition-all hover:-translate-y-0.5">About</a></li>
-            <li><a href="#contact" className="hover:text-[#667eea] transition-all hover:-translate-y-0.5">Contact</a></li>
+          <ul className="hidden md:flex gap-8 text-slate-600 font-medium">
+            <li>
+              <a
+                href="#features"
+                className="hover:text-[#3B6597] transition-all hover:-translate-y-0.5 relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-[#7DD5DB] after:transition-all hover:after:w-full"
+              >
+                Features
+              </a>
+            </li>
+            <li>
+              <a
+                href="#pricing"
+                className="hover:text-[#3B6597] transition-all hover:-translate-y-0.5 relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-[#7DD5DB] after:transition-all hover:after:w-full"
+              >
+                Pricing
+              </a>
+            </li>
+            <li>
+              <a
+                href="#about"
+                className="hover:text-[#3B6597] transition-all hover:-translate-y-0.5 relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-[#7DD5DB] after:transition-all hover:after:w-full"
+              >
+                About
+              </a>
+            </li>
+            <li>
+              <a
+                href="#contact"
+                className="hover:text-[#3B6597] transition-all hover:-translate-y-0.5 relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-[#7DD5DB] after:transition-all hover:after:w-full"
+              >
+                Contact
+              </a>
+            </li>
           </ul>
           <a
             href="/register"
-            className="bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white px-6 py-3 rounded-full font-semibold shadow transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+            className="bg-gradient-to-r from-[#7DD5DB] to-[#3B6597] text-white px-8 py-3 rounded-full font-semibold shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl relative overflow-hidden group"
           >
-            Get Started Free
+            <span className="relative z-10">Get Started Free</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-[#3B6597] to-[#7DD5DB] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </a>
         </nav>
       </header>
 
       {/* Hero */}
-      <section className="hero relative text-center pt-36 pb-20 overflow-hidden" id="hero">
-        <div className="absolute -top-1/2 -left-1/2 w-[200vw] h-[200vw] bg-[radial-gradient(circle,rgba(102,126,234,0.1)_0%,transparent_50%)] animate-spin-slow pointer-events-none" />
-        <div className="relative z-10 container mx-auto px-4 max-w-3xl">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-6 bg-gradient-to-r from-[#667eea] to-[#764ba2] bg-clip-text text-transparent leading-tight">
-            Say Goodbye to Job Hunting Chaos
+      <section className="hero relative text-center pt-40 pb-24 overflow-hidden" id="hero">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#7DD5DB]/10 via-transparent to-[#3B6597]/10"></div>
+        <div className="absolute top-20 left-10 w-72 h-72 bg-[#7DD5DB]/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#3B6597]/20 rounded-full blur-3xl"></div>
+        <div className="relative z-10 container mx-auto px-4 max-w-4xl">
+          <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-6 py-3 rounded-full border border-slate-200 mb-8">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="text-sm font-medium text-slate-600">AI-Powered Career Assistant</span>
+          </div>
+          <h1 className="text-5xl sm:text-6xl md:text-7xl font-black mb-8 leading-tight">
+            <span className="bg-gradient-to-r from-[#3B6597] via-[#7DD5DB] to-[#3B6597] bg-clip-text text-transparent">
+              Transform Your
+            </span>
+            <br />
+            <span className="text-slate-800">Job Search Journey</span>
           </h1>
-          <p className="text-lg md:text-xl text-[#666] mb-8 max-w-xl mx-auto">
-            Track applications, optimize your resume with AI, and land your dream job faster with <span className="font-semibold text-[#667eea]">CareerPilot</span> - your intelligent career companion.
+          <p className="text-xl md:text-2xl text-slate-600 mb-12 max-w-2xl mx-auto leading-relaxed">
+            Track applications, optimize your resume with AI, and land your dream job faster with
+            <span className="font-semibold text-[#3B6597]"> CareerPilot</span> - your intelligent career companion.
           </p>
-          <a
-            href="/register"
-            className="inline-flex items-center gap-3 bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white px-8 py-4 rounded-full font-semibold text-lg shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
-          >
-            <FaRocket className="text-white" />
-            Get Started Free
-          </a>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <a
+              href="/register"
+              className="inline-flex items-center gap-3 bg-gradient-to-r from-[#7DD5DB] to-[#3B6597] text-white px-10 py-5 rounded-full font-bold text-lg shadow-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-3xl group"
+            >
+              <FaRocket className="text-white group-hover:rotate-12 transition-transform" />
+              Get Started Free
+            </a>
+            <a
+              href="#features"
+              className="inline-flex items-center gap-3 bg-white/80 backdrop-blur-sm text-[#3B6597] px-10 py-5 rounded-full font-bold text-lg border border-slate-200 hover:bg-white hover:shadow-lg transition-all duration-300"
+            >
+              Learn More
+            </a>
+          </div>
         </div>
       </section>
 
       {/* Features */}
-      <section className="features bg-white py-24" id="features">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-[#333]">Everything You Need to Land Your Dream Job</h2>
-          <div className="grid gap-12 md:grid-cols-3 mt-16">
-            <div className="feature-card bg-white p-10 rounded-2xl text-center shadow-[0_10px_40px_rgba(0,0,0,0.08)] border-t-4 border-[#667eea] relative transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(0,0,0,0.15)]">
-              <div className="feature-icon w-20 h-20 mx-auto mb-6 flex items-center justify-center rounded-2xl bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white text-3xl">
-                <FaTasks />
+      <section className="features bg-white py-32" id="features">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-5xl font-black text-slate-800 mb-6">
+              Everything You Need to
+              <span className="bg-gradient-to-r from-[#7DD5DB] to-[#3B6597] bg-clip-text text-transparent">
+                {" "}
+                Land Your Dream Job
+              </span>
+            </h2>
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+              Streamline your job search with our comprehensive suite of AI-powered tools designed to give you the
+              competitive edge.
+            </p>
+          </div>
+          <div className="grid gap-8 md:grid-cols-3 mt-16">
+            <div className="group relative bg-gradient-to-br from-white to-slate-50 p-10 rounded-3xl shadow-lg border border-slate-100 transition-all duration-500 hover:-translate-y-4 hover:shadow-2xl">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#7DD5DB]/5 to-[#3B6597]/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative">
+                <div className="w-20 h-20 mx-auto mb-8 flex items-center justify-center rounded-2xl bg-gradient-to-br from-[#7DD5DB] to-[#3B6597] text-white text-3xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <FaTasks />
+                </div>
+                <h3 className="text-2xl font-bold mb-4 text-slate-800">Smart Job Tracker</h3>
+                <p className="text-slate-600 leading-relaxed">
+                  Organize your applications with our intuitive Kanban board. Track progress from saved jobs to offers,
+                  never miss a deadline, and stay on top of every opportunity.
+                </p>
               </div>
-              <h3 className="text-xl font-bold mb-2 text-[#333]">Smart Job Tracker</h3>
-              <p className="text-[#666]">Organize your applications with our intuitive Kanban board. Track progress from saved jobs to offers, never miss a deadline, and stay on top of every opportunity.</p>
             </div>
-            <div className="feature-card bg-white p-10 rounded-2xl text-center shadow-[0_10px_40px_rgba(0,0,0,0.08)] border-t-4 border-[#667eea] relative transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(0,0,0,0.15)]">
-              <div className="feature-icon w-20 h-20 mx-auto mb-6 flex items-center justify-center rounded-2xl bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white text-3xl">
-                <FaFileAlt />
+            <div className="group relative bg-gradient-to-br from-white to-slate-50 p-10 rounded-3xl shadow-lg border border-slate-100 transition-all duration-500 hover:-translate-y-4 hover:shadow-2xl">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#7DD5DB]/5 to-[#3B6597]/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative">
+                <div className="w-20 h-20 mx-auto mb-8 flex items-center justify-center rounded-2xl bg-gradient-to-br from-[#7DD5DB] to-[#3B6597] text-white text-3xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <FaFileAlt />
+                </div>
+                <h3 className="text-2xl font-bold mb-4 text-slate-800">AI Resume Review</h3>
+                <p className="text-slate-600 leading-relaxed">
+                  Get instant feedback on your resume with our AI-powered analyzer. Optimize for specific job
+                  descriptions and increase your chances of getting noticed by recruiters.
+                </p>
               </div>
-              <h3 className="text-xl font-bold mb-2 text-[#333]">AI Resume Review</h3>
-              <p className="text-[#666]">Get instant feedback on your resume with our AI-powered analyzer. Optimize for specific job descriptions and increase your chances of getting noticed by recruiters.</p>
             </div>
-            <div className="feature-card bg-white p-10 rounded-2xl text-center shadow-[0_10px_40px_rgba(0,0,0,0.08)] border-t-4 border-[#667eea] relative transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(0,0,0,0.15)]">
-              <div className="feature-icon w-20 h-20 mx-auto mb-6 flex items-center justify-center rounded-2xl bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white text-3xl">
-                <FaMicrophone />
+            <div className="group relative bg-gradient-to-br from-white to-slate-50 p-10 rounded-3xl shadow-lg border border-slate-100 transition-all duration-500 hover:-translate-y-4 hover:shadow-2xl">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#7DD5DB]/5 to-[#3B6597]/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative">
+                <div className="w-20 h-20 mx-auto mb-8 flex items-center justify-center rounded-2xl bg-gradient-to-br from-[#7DD5DB] to-[#3B6597] text-white text-3xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <FaMicrophone />
+                </div>
+                <h3 className="text-2xl font-bold mb-4 text-slate-800">Mock Interview Simulator</h3>
+                <p className="text-slate-600 leading-relaxed">
+                  Practice with our AI interviewer that adapts to your target role. Get real-time feedback on your
+                  answers and build confidence before the real interview.
+                </p>
               </div>
-              <h3 className="text-xl font-bold mb-2 text-[#333]">Mock Interview Simulator</h3>
-              <p className="text-[#666]">Practice with our AI interviewer that adapts to your target role. Get real-time feedback on your answers and build confidence before the real interview.</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Pricing */}
-      <section className="pricing bg-gradient-to-b from-[#f8fafc] to-[#e2e8f0] py-24" id="pricing">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <h2 className="section-title text-3xl md:text-4xl font-bold text-center mb-12 text-[#333]">Choose Your Plan</h2>
-          <div className="pricing-grid grid gap-8 md:grid-cols-3 mt-16">
+      <section className="pricing bg-gradient-to-br from-slate-50 to-cyan-50 py-32" id="pricing">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-5xl font-black text-slate-800 mb-6">Choose Your Plan</h2>
+            <p className="text-xl text-slate-600">Start free, upgrade when you're ready to accelerate your career</p>
+          </div>
+          <div className="grid gap-8 md:grid-cols-3 mt-16">
             {/* Basic */}
-            <div className="pricing-card bg-white p-10 rounded-2xl text-center shadow-[0_10px_40px_rgba(0,0,0,0.08)] transition-all duration-300">
-              <h3 className="text-xl font-bold mb-2">Basic</h3>
-              <div className="price text-4xl font-extrabold bg-gradient-to-r from-[#667eea] to-[#764ba2] bg-clip-text text-transparent mb-2">Free</div>
-              <p className="text-[#666] mb-6">Perfect for getting started</p>
-              <ul className="pricing-features text-[#666] mb-8 space-y-2 text-left">
-                <li className="flex items-center gap-2"><span className="check text-[#10b981] font-bold">✓</span> Track up to 20 jobs</li>
-                <li className="flex items-center gap-2"><span className="check text-[#10b981] font-bold">✓</span> Basic dashboard</li>
-                <li className="flex items-center gap-2"><span className="check text-[#10b981] font-bold">✓</span> Document upload</li>
-                <li className="flex items-center gap-2"><span className="check text-[#10b981] font-bold">✓</span> Job insights</li>
-                <li className="opacity-40">✗ AI Resume Review</li>
-                <li className="opacity-40">✗ AI Cover Letter</li>
-                <li className="opacity-40">✗ Mock Interview</li>
+            <div className="bg-white p-10 rounded-3xl shadow-lg border border-slate-200 transition-all duration-300 hover:shadow-xl">
+              <h3 className="text-2xl font-bold mb-4 text-slate-800">Basic</h3>
+              <div className="mb-2">
+                <span className="text-5xl font-black text-slate-800">Free</span>
+              </div>
+              <p className="text-slate-600 mb-8">Perfect for getting started</p>
+              <ul className="space-y-4 mb-10">
+                <li className="flex items-center gap-3">
+                  <FaCheck className="text-green-500 flex-shrink-0" /> Track up to 20 jobs
+                </li>
+                <li className="flex items-center gap-3">
+                  <FaCheck className="text-green-500 flex-shrink-0" /> Basic dashboard
+                </li>
+                <li className="flex items-center gap-3">
+                  <FaCheck className="text-green-500 flex-shrink-0" /> Document upload
+                </li>
+                <li className="flex items-center gap-3">
+                  <FaCheck className="text-green-500 flex-shrink-0" /> Job insights
+                </li>
+                <li className="flex items-center gap-3 opacity-40">
+                  <span className="w-4 h-4 flex-shrink-0">✗</span> AI Resume Review
+                </li>
+                <li className="flex items-center gap-3 opacity-40">
+                  <span className="w-4 h-4 flex-shrink-0">✗</span> AI Cover Letter
+                </li>
+                <li className="flex items-center gap-3 opacity-40">
+                  <span className="w-4 h-4 flex-shrink-0">✗</span> Mock Interview
+                </li>
               </ul>
-              <a href="/register" className="pricing-cta w-full bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white py-3 rounded-full font-semibold shadow transition-all duration-300 hover:-translate-y-1 hover:shadow-xl block">Get Started Free</a>
+              <a
+                href="/register"
+                className="w-full bg-gradient-to-r from-slate-600 to-slate-700 text-white py-4 rounded-full font-bold text-center block transition-all duration-300 hover:from-slate-700 hover:to-slate-800 hover:-translate-y-1 hover:shadow-lg"
+              >
+                Get Started Free
+              </a>
             </div>
+
             {/* Pro */}
-            <div className="pricing-card featured bg-white p-10 rounded-2xl text-center shadow-[0_10px_40px_rgba(0,0,0,0.08)] border-4 border-[#667eea] scale-105 relative transition-all duration-300">
-              <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white px-6 py-1 rounded-full font-semibold text-sm shadow">Most Popular</div>
-              <h3 className="text-xl font-bold mb-2">Pro</h3>
-              <div className="price text-4xl font-extrabold bg-gradient-to-r from-[#667eea] to-[#764ba2] bg-clip-text text-transparent mb-2">$19<span className="text-base text-[#666] font-normal">/month</span></div>
-              <p className="text-[#666] mb-6">For serious job seekers</p>
-              <ul className="pricing-features text-[#666] mb-8 space-y-2 text-left">
-                <li className="flex items-center gap-2"><span className="check text-[#10b981] font-bold">✓</span> Unlimited job tracking</li>
-                <li className="flex items-center gap-2"><span className="check text-[#10b981] font-bold">✓</span> Advanced analytics</li>
-                <li className="flex items-center gap-2"><span className="check text-[#10b981] font-bold">✓</span> Document management</li>
-                <li className="flex items-center gap-2"><span className="check text-[#10b981] font-bold">✓</span> Priority support</li>
-                <li className="flex items-center gap-2"><span className="check text-[#10b981] font-bold">✓</span> AI Resume Review</li>
-                <li className="flex items-center gap-2"><span className="check text-[#10b981] font-bold">✓</span> AI Cover Letter Generator</li>
-                <li className="flex items-center gap-2"><span className="check text-[#10b981] font-bold">✓</span> Mock Interview Simulator</li>
+            <div className="bg-white p-10 rounded-3xl shadow-2xl border-4 border-[#7DD5DB] scale-105 relative transition-all duration-300 hover:shadow-3xl">
+              <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#7DD5DB] to-[#3B6597] text-white px-8 py-2 rounded-full font-bold text-sm shadow-lg">
+                Most Popular
+              </div>
+              <h3 className="text-2xl font-bold mb-4 text-slate-800">Pro</h3>
+              <div className="mb-2">
+                <span className="text-5xl font-black bg-gradient-to-r from-[#7DD5DB] to-[#3B6597] bg-clip-text text-transparent">
+                  $19
+                </span>
+                <span className="text-lg text-slate-600 font-normal">/month</span>
+              </div>
+              <p className="text-slate-600 mb-8">For serious job seekers</p>
+              <ul className="space-y-4 mb-10">
+                <li className="flex items-center gap-3">
+                  <FaCheck className="text-green-500 flex-shrink-0" /> Unlimited job tracking
+                </li>
+                <li className="flex items-center gap-3">
+                  <FaCheck className="text-green-500 flex-shrink-0" /> Advanced analytics
+                </li>
+                <li className="flex items-center gap-3">
+                  <FaCheck className="text-green-500 flex-shrink-0" /> Document management
+                </li>
+                <li className="flex items-center gap-3">
+                  <FaCheck className="text-green-500 flex-shrink-0" /> Priority support
+                </li>
+                <li className="flex items-center gap-3">
+                  <FaCheck className="text-green-500 flex-shrink-0" /> AI Resume Review
+                </li>
+                <li className="flex items-center gap-3">
+                  <FaCheck className="text-green-500 flex-shrink-0" /> AI Cover Letter Generator
+                </li>
+                <li className="flex items-center gap-3">
+                  <FaCheck className="text-green-500 flex-shrink-0" /> Mock Interview Simulator
+                </li>
               </ul>
-              <a href="/register" className="pricing-cta w-full bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white py-3 rounded-full font-semibold shadow transition-all duration-300 hover:-translate-y-1 hover:shadow-xl block">Start Pro Trial</a>
+              <a
+                href="/register"
+                className="w-full bg-gradient-to-r from-[#7DD5DB] to-[#3B6597] text-white py-4 rounded-full font-bold text-center block transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+              >
+                Start Pro Trial
+              </a>
             </div>
+
             {/* Enterprise */}
-            <div className="pricing-card bg-white p-10 rounded-2xl text-center shadow-[0_10px_40px_rgba(0,0,0,0.08)] transition-all duration-300">
-              <h3 className="text-xl font-bold mb-2">Enterprise</h3>
-              <div className="price text-4xl font-extrabold bg-gradient-to-r from-[#667eea] to-[#764ba2] bg-clip-text text-transparent mb-2">$99<span className="text-base text-[#666] font-normal">/month</span></div>
-              <p className="text-[#666] mb-6">For teams and organizations</p>
-              <ul className="pricing-features text-[#666] mb-8 space-y-2 text-left">
-                <li className="flex items-center gap-2"><span className="check text-[#10b981] font-bold">✓</span> Everything in Pro</li>
-                <li className="flex items-center gap-2"><span className="check text-[#10b981] font-bold">✓</span> Team management</li>
-                <li className="flex items-center gap-2"><span className="check text-[#10b981] font-bold">✓</span> Bulk operations</li>
-                <li className="flex items-center gap-2"><span className="check text-[#10b981] font-bold">✓</span> API access</li>
-                <li className="flex items-center gap-2"><span className="check text-[#10b981] font-bold">✓</span> Custom integrations</li>
-                <li className="flex items-center gap-2"><span className="check text-[#10b981] font-bold">✓</span> Dedicated support</li>
-                <li className="flex items-center gap-2"><span className="check text-[#10b981] font-bold">✓</span> Analytics dashboard</li>
+            <div className="bg-white p-10 rounded-3xl shadow-lg border border-slate-200 transition-all duration-300 hover:shadow-xl">
+              <h3 className="text-2xl font-bold mb-4 text-slate-800">Enterprise</h3>
+              <div className="mb-2">
+                <span className="text-5xl font-black text-slate-800">$99</span>
+                <span className="text-lg text-slate-600 font-normal">/month</span>
+              </div>
+              <p className="text-slate-600 mb-8">For teams and organizations</p>
+              <ul className="space-y-4 mb-10">
+                <li className="flex items-center gap-3">
+                  <FaCheck className="text-green-500 flex-shrink-0" /> Everything in Pro
+                </li>
+                <li className="flex items-center gap-3">
+                  <FaCheck className="text-green-500 flex-shrink-0" /> Team management
+                </li>
+                <li className="flex items-center gap-3">
+                  <FaCheck className="text-green-500 flex-shrink-0" /> Bulk operations
+                </li>
+                <li className="flex items-center gap-3">
+                  <FaCheck className="text-green-500 flex-shrink-0" /> API access
+                </li>
+                <li className="flex items-center gap-3">
+                  <FaCheck className="text-green-500 flex-shrink-0" /> Custom integrations
+                </li>
+                <li className="flex items-center gap-3">
+                  <FaCheck className="text-green-500 flex-shrink-0" /> Dedicated support
+                </li>
+                <li className="flex items-center gap-3">
+                  <FaCheck className="text-green-500 flex-shrink-0" /> Analytics dashboard
+                </li>
               </ul>
-              <a href="/register" className="pricing-cta w-full bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white py-3 rounded-full font-semibold shadow transition-all duration-300 hover:-translate-y-1 hover:shadow-xl block">Contact Sales</a>
+              <a
+                href="/register"
+                className="w-full bg-gradient-to-r from-slate-600 to-slate-700 text-white py-4 rounded-full font-bold text-center block transition-all duration-300 hover:from-slate-700 hover:to-slate-800 hover:-translate-y-1 hover:shadow-lg"
+              >
+                Contact Sales
+              </a>
             </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-[#1a202c] text-white text-center py-16 mt-24">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="footer-content grid md:grid-cols-3 gap-12 mb-8">
-            <div className="footer-section">
-              <h4 className="text-[#667eea] font-bold mb-3">Product</h4>
-              <ul className="space-y-2 text-[#a0aec0]">
-                <li><a href="#features" className="hover:text-[#667eea]">Features</a></li>
-                <li><a href="#pricing" className="hover:text-[#667eea]">Pricing</a></li>
-                <li><a href="#demo" className="hover:text-[#667eea]">Demo</a></li>
-                <li><a href="#api" className="hover:text-[#667eea]">API</a></li>
+      <footer className="bg-slate-900 text-white py-20">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <div className="grid md:grid-cols-4 gap-12 mb-12">
+            <div className="md:col-span-2">
+              <div className="flex items-center gap-3 font-extrabold text-2xl mb-6">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#7DD5DB] to-[#3B6597] flex items-center justify-center">
+                  <FaRocket className="text-white text-lg" />
+                </div>
+                <span className="bg-gradient-to-r from-[#7DD5DB] to-white bg-clip-text text-transparent">
+                  CareerPilot
+                </span>
+              </div>
+              <p className="text-slate-400 text-lg leading-relaxed max-w-md">
+                Transform your job search with AI-powered tools designed to help you land your dream career faster and
+                more efficiently.
+              </p>
+            </div>
+            <div>
+              <h4 className="text-[#7DD5DB] font-bold mb-6 text-lg">Product</h4>
+              <ul className="space-y-3 text-slate-400">
+                <li>
+                  <a href="#features" className="hover:text-[#7DD5DB] transition-colors">
+                    Features
+                  </a>
+                </li>
+                <li>
+                  <a href="#pricing" className="hover:text-[#7DD5DB] transition-colors">
+                    Pricing
+                  </a>
+                </li>
+                <li>
+                  <a href="#demo" className="hover:text-[#7DD5DB] transition-colors">
+                    Demo
+                  </a>
+                </li>
+                <li>
+                  <a href="#api" className="hover:text-[#7DD5DB] transition-colors">
+                    API
+                  </a>
+                </li>
               </ul>
             </div>
-            <div className="footer-section">
-              <h4 className="text-[#667eea] font-bold mb-3">Company</h4>
-              <ul className="space-y-2 text-[#a0aec0]">
-                <li><a href="#about" className="hover:text-[#667eea]">About Us</a></li>
-                <li><a href="#careers" className="hover:text-[#667eea]">Careers</a></li>
-                <li><a href="#blog" className="hover:text-[#667eea]">Blog</a></li>
-                <li><a href="#press" className="hover:text-[#667eea]">Press</a></li>
-              </ul>
-            </div>
-            <div className="footer-section">
-              <h4 className="text-[#667eea] font-bold mb-3">Support</h4>
-              <ul className="space-y-2 text-[#a0aec0]">
-                <li><a href="#help" className="hover:text-[#667eea]">Help Center</a></li>
-                <li><a href="#contact" className="hover:text-[#667eea]">Contact Us</a></li>
-                <li><a href="#status" className="hover:text-[#667eea]">Status</a></li>
-                <li><a href="#privacy" className="hover:text-[#667eea]">Privacy Policy</a></li>
+            <div>
+              <h4 className="text-[#7DD5DB] font-bold mb-6 text-lg">Support</h4>
+              <ul className="space-y-3 text-slate-400">
+                <li>
+                  <a href="#help" className="hover:text-[#7DD5DB] transition-colors">
+                    Help Center
+                  </a>
+                </li>
+                <li>
+                  <a href="#contact" className="hover:text-[#7DD5DB] transition-colors">
+                    Contact Us
+                  </a>
+                </li>
+                <li>
+                  <a href="#status" className="hover:text-[#7DD5DB] transition-colors">
+                    Status
+                  </a>
+                </li>
+                <li>
+                  <a href="#privacy" className="hover:text-[#7DD5DB] transition-colors">
+                    Privacy Policy
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
-          <p className="text-center text-[#a0aec0] mt-8">
-            &copy; 2025 CareerPilot. All rights reserved. Made with <span className="text-red-400">❤️</span> for job seekers worldwide.
-          </p>
+          <div className="border-t border-slate-800 pt-8">
+            <p className="text-center text-slate-400">
+              &copy; 2025 CareerPilot. All rights reserved. Made with <span className="text-red-400">❤️</span> for job
+              seekers worldwide.
+            </p>
+          </div>
         </div>
       </footer>
     </div>
-  );
+  )
 }
