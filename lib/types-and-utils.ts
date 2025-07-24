@@ -140,3 +140,17 @@ export interface InterviewSummary {
     eyeContactPercentage: number;
   }[];
 }
+
+export interface JobApplication {
+  id?: string;
+  user_id?: string;
+  job_title: string; // Ubah dari jobTitle menjadi job_title agar cocok dengan database
+  company_name: string; // Ubah dari companyName menjadi company_name
+  location: string;
+  job_url: string;
+  job_description: string;
+  notes: string;
+  application_deadline: string | null;
+  status: 'Saved' | 'Applied' | 'Interview' | 'Offer' | 'Rejected'; // Tambahkan status
+  created_at?: string;
+}
