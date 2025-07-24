@@ -10,7 +10,7 @@ export default function LiveInterview({
   interviewContext,
   onInterviewComplete,
 }: {
-  interviewContext: InterviewContext; // <-- Gunakan tipe yang benar
+  interviewContext: InterviewContext;
   onInterviewComplete: (summary: InterviewSummary) => void;
 }) {
   const [currentQuestion, setCurrentQuestion] = useState('');
@@ -29,23 +29,38 @@ export default function LiveInterview({
     stopAnswering,
   } = useInterviewEngine();
 
-  // Initialize engine on component mount
+  // Fungsi untuk memetakan properti dari snake_case ke camelCase
+  const mapContextToApiPayload = (context: InterviewContext) => ({
+    jobTitle: context.job_title,
+    jobDescription: context.job_description,
+    companyName: context.company_name
+  });
+
   useEffect(() => {
     initialize();
   }, [initialize]);
 
-  // Start interview and get first question once engine is ready
   useEffect(() => {
-    if (!isEngineReady) return;
+    if (!isEngineReady || !interviewContext) return; // Tambahkan pengecekan interviewContext
     const fetchFirstQuestion = async () => {
-      const response = await fetch('/api/interview/start', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ jobDetails: interviewContext, language: interviewContext.language }),
-      });
-      const data = await response.json();
-      setCurrentQuestion(data.question);
-      setIsLoading(false);
+      try {
+        const apiPayload = mapContextToApiPayload(interviewContext); // Buat payload yang benar
+        const response = await fetch('/api/interview/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jobDetails: apiPayload, language: interviewContext.language }), // Kirim payload yang benar
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to start interview.');
+        }
+        setCurrentQuestion(data.question);
+      } catch (error) {
+        console.error('Error fetching first question:', error);
+        setCurrentQuestion('Error: Could not load the first question. Please refresh and try again.');
+      } finally {
+        setIsLoading(false);
+      }
     };
     fetchFirstQuestion();
   }, [isEngineReady, interviewContext]);
@@ -56,7 +71,10 @@ export default function LiveInterview({
     } else {
       setIsLoading(true);
       const result = stopAnswering();
-      if (!result) return;
+      if (!result) {
+        setIsLoading(false);
+        return;
+      }
       
       const payload: AnswerPayload = {
         question: currentQuestion,
@@ -66,36 +84,48 @@ export default function LiveInterview({
       const newHistory = [...interviewHistory, payload];
       setInterviewHistory(newHistory);
 
-      const response = await fetch('/api/interview/answer', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jobDetails: interviewContext,
-          answerPayload: payload,
-          history: interviewHistory,
-          language: interviewContext.language, // <-- KIRIM BAHASA
-        }),
-      });
-      const data = await response.json();
-      
-      setLastFeedback(data.feedback);
+      try {
+        const apiPayload = mapContextToApiPayload(interviewContext); // Buat payload yang benar
+        const response = await fetch('/api/interview/answer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jobDetails: apiPayload, // Kirim payload yang benar
+            answerPayload: payload,
+            history: interviewHistory,
+            language: interviewContext.language,
+          }),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || 'Failed to process answer.');
+        }
+        
+        setLastFeedback(data.feedback);
 
-      if (data.nextQuestion === 'END_OF_INTERVIEW') {
-        endInterview(newHistory);
-      } else {
-        setCurrentQuestion(data.nextQuestion);
-        setIsLoading(false);
+        if (data.nextQuestion === 'END_OF_INTERVIEW') {
+          endInterview(newHistory);
+        } else {
+          setCurrentQuestion(data.nextQuestion);
+          setIsLoading(false);
+        }
+      } catch (error) {
+          console.error('Error submitting answer:', error);
+          setLastFeedback(`Error: ${(error as Error).message}. You can end the interview manually.`);
+          setCurrentQuestion('An error occurred. Please wait or end the interview.');
+          setIsLoading(false);
       }
     }
   };
 
   const endInterview = async (finalHistory: AnswerPayload[]) => {
+    setIsLoading(true);
     const response = await fetch('/api/interview/end', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         history: finalHistory, 
-        language: interviewContext.language // <-- KIRIM BAHASA
+        language: interviewContext.language
       }),
     });
     const summary = await response.json();
@@ -106,11 +136,11 @@ export default function LiveInterview({
     return <div className="text-center p-8">{engineStatus}</div>
   }
 
+
   return (
     <div className="max-w-6xl mx-auto p-6 bg-white rounded-lg shadow-lg">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         
-        {/* Kolom Kiri: UI Interaksi */}
         <div className="flex flex-col space-y-4">
           <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <h3 className="font-bold text-blue-800 mb-2">Interviewer AI</h3>
@@ -123,9 +153,11 @@ export default function LiveInterview({
           </div>
 
           {lastFeedback && (
-            <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-              <h4 className="font-semibold text-green-800">Quick Feedback:</h4>
-              <p className="text-sm text-green-700">{lastFeedback}</p>
+            <div className={`p-3 border rounded-lg ${lastFeedback.startsWith('Error:') ? 'bg-red-50 border-red-200' : 'bg-green-50 border-green-200'}`}>
+              <h4 className={`font-semibold ${lastFeedback.startsWith('Error:') ? 'text-red-800' : 'text-green-800'}`}>
+                {lastFeedback.startsWith('Error:') ? 'Error' : 'Quick Feedback'}:
+              </h4>
+              <p className={`text-sm ${lastFeedback.startsWith('Error:') ? 'text-red-700' : 'text-green-700'}`}>{lastFeedback}</p>
             </div>
           )}
 
@@ -138,7 +170,6 @@ export default function LiveInterview({
           </button>
         </div>
         
-        {/* Kolom Kanan: Video Feed */}
         <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
           <video ref={videoRef} autoPlay muted className="w-full h-full object-cover" />
           {isListening && 

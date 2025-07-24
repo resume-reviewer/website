@@ -22,18 +22,18 @@ export default function FeedbackSummary({ summary, onStartOver }: FeedbackSummar
         <div className="bg-green-50 p-6 rounded-lg border border-green-200">
           <h3 className="text-xl font-semibold text-green-800 mb-3">Strengths</h3>
           <ul className="list-disc list-inside space-y-2 text-green-700">
-            {summary.strengths.map((strength, index) => <li key={index}>{strength}</li>)}
+            {summary.strengths?.map((strength, index) => <li key={index}>{strength}</li>)}
           </ul>
         </div>
         <div className="bg-red-50 p-6 rounded-lg border border-red-200">
           <h3 className="text-xl font-semibold text-red-800 mb-3">Areas for Improvement</h3>
           <h4 className="font-medium text-red-700 mt-2 mb-1">Content:</h4>
           <ul className="list-disc list-inside space-y-1 text-red-700">
-            {summary.areasForImprovement.content.map((item, index) => <li key={`content-${index}`}>{item}</li>)}
+            {summary.areasForImprovement?.content?.map((item, index) => <li key={`content-${index}`}>{item}</li>)}
           </ul>
           <h4 className="font-medium text-red-700 mt-4 mb-1">Delivery:</h4>
           <ul className="list-disc list-inside space-y-1 text-red-700">
-            {summary.areasForImprovement.delivery.map((item, index) => <li key={`delivery-${index}`}>{item}</li>)}
+            {summary.areasForImprovement?.delivery?.map((item, index) => <li key={`delivery-${index}`}>{item}</li>)}
           </ul>
         </div>
       </div>
