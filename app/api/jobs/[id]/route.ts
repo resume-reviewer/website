@@ -1,11 +1,9 @@
-// File: /app/api/jobs/[id]/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { createClient } from '@supabase/supabase-js';
 
-// Fungsi untuk mendapatkan Supabase client yang terotentikasi
+// Helper function untuk Supabase client
 const getSupabaseAuthedClient = (accessToken: string) => {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -14,19 +12,28 @@ const getSupabaseAuthedClient = (accessToken: string) => {
   );
 };
 
-// Handler untuk metode PATCH (Update Sebagian)
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+// Handler untuk metode PATCH (Update)
+export async function PATCH(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> } // Updated to handle Promise
+) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id || !session.supabaseAccessToken) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  try {
-    const { id } = params;
-    const { status } = await request.json(); // Ambil status baru dari body request
+  // Await the params Promise
+  const params = await context.params;
+  const jobId = params.id;
+  
+  if (!jobId) {
+    return NextResponse.json({ error: 'Job ID is required' }, { status: 400 });
+  }
 
+  try {
+    const { status } = await request.json();
     if (!status) {
-      return NextResponse.json({ error: 'Status field is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Status is required for update' }, { status: 400 });
     }
 
     const supabase = getSupabaseAuthedClient(session.supabaseAccessToken);
@@ -34,22 +41,20 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     const { data, error } = await supabase
       .from('jobs')
       .update({ status: status })
-      .eq('id', id)
-      .eq('user_id', session.user.id) // Pastikan pengguna hanya bisa update miliknya sendiri
+      .eq('id', jobId)
+      .eq('user_id', session.user.id)
       .select()
       .single();
 
     if (error) {
-      if (error.code === 'PGRST116') { // Kode error jika tidak ada baris yang ditemukan
-        return NextResponse.json({ error: 'Job not found or access denied' }, { status: 404 });
-      }
-      throw error;
+      throw new Error(error.message || 'Failed to update job status.');
     }
 
     return NextResponse.json(data);
 
   } catch (error) {
-    console.error('Error updating job status:', error);
-    return NextResponse.json({ error: 'Failed to update job status' }, { status: 500 });
+    console.error('Error updating job:', error);
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    return NextResponse.json({ error: `Failed to update job: ${errorMessage}` }, { status: 500 });
   }
 }
