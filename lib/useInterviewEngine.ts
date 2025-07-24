@@ -15,7 +15,7 @@ export function useInterviewEngine() {
   
   // Ref untuk model dan API
   const landmarkerRef = useRef<FaceLandmarker | null>(null); 
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<any>(null); 
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   
@@ -73,7 +73,7 @@ export function useInterviewEngine() {
         recog.interimResults = true;
 
         // Event handler onresult
-        recog.onresult = (event) => {
+        recog.onresult = (event: SpeechRecognitionEvent) => {
           let finalTranscript = '';
           for (let i = event.resultIndex; i < event.results.length; ++i) {
             if (event.results[i].isFinal) {
@@ -81,25 +81,24 @@ export function useInterviewEngine() {
             }
           }
           if (finalTranscript) {
-            console.log("Transcript received:", finalTranscript); // LOG 2
+            console.log("Transcript received:", finalTranscript);
             setTranscribedText(prev => prev + finalTranscript);
           }
         };
 
         recog.onstart = () => {
-          console.log("Speech recognition has started."); // LOG 3
+          console.log("Speech recognition has started.");
         };
 
         recog.onend = () => {
-          console.log("Speech recognition has ended."); // LOG 4
-          // Jika berhenti secara otomatis, kita perlu menonaktifkan state isListening
+          console.log("Speech recognition has ended.");
           if (isListening) {
             setIsListening(false);
           }
         };
 
-        recog.onerror = (event) => {
-          console.error("Speech recognition error:", event.error); // LOG 5
+        recog.onerror = (event: SpeechRecognitionErrorEvent) => {
+          console.error("Speech recognition error:", event.error);
           if (event.error === 'not-allowed') {
             setEngineStatus("Microphone access was denied. Please allow microphone access in your browser settings.");
           } else {
@@ -109,7 +108,7 @@ export function useInterviewEngine() {
 
         recognitionRef.current = recog;
       } else {
-        console.error("Speech Recognition API is NOT supported by this browser."); // LOG 6
+        console.error("Speech Recognition API is NOT supported by this browser.");
         setEngineStatus("Speech recognition is not supported by your browser. Please use Google Chrome or Microsoft Edge.");
       }
       

@@ -1,11 +1,12 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
+import { AnswerPayload } from '@/lib/types-and-utils';
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY!);
 
 export async function POST(request: NextRequest) {
   try {
-    const { history } = await request.json(); // history now contains AnswerPayload[]
+    const { history }: { history: AnswerPayload[] } = await request.json();
 
     if (!history || history.length === 0) {
       return NextResponse.json({ error: 'Interview history is required' }, { status: 400 });
@@ -13,8 +14,8 @@ export async function POST(request: NextRequest) {
 
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-    const historyText = history.map((h: any) => 
-      `Q: ${h.question}\nAnswer: ${h.transcribedAnswer}\nDelivery Analysis: Pace ${h.analysis.speechPace.toFixed(0)} WPM, Volume ${h.analysis.volumeLevel.toFixed(2)}, Eye Contact ${h.analysis.eyeContactDuration}%`
+    const historyText = history.map((h: AnswerPayload) => 
+      `Q: ${h.question}\nAnswer: ${h.transcribedAnswer}\nDelivery Analysis: Pace ${h.analysis.speechPace.toFixed(0)} WPM, Volume ${h.analysis.volumeLevel.toFixed(2)}, Eye Contact ${h.analysis.eyeContactPercentage}%`
     ).join('\n\n');
 
     const prompt = `
@@ -31,7 +32,8 @@ export async function POST(request: NextRequest) {
           "content": ["Specific advice on improving answer content 1.", "Suggestion for content 2."],
           "delivery": ["Advice on delivery, e.g., 'Try to speak a bit more slowly to sound more deliberate.'", "Advice on body language, e.g., 'Your eye contact was good, keep it up.'"]
         },
-        "performanceMetrics": ${JSON.stringify(history.map((h: any) => ({ question: h.question, speechPace: h.analysis.speechPace, volumeLevel: h.analysis.volumeLevel })))}
+        // Ganti h: any menjadi h: AnswerPayload
+        "performanceMetrics": ${JSON.stringify(history.map((h: AnswerPayload) => ({ question: h.question, speechPace: h.analysis.speechPace, volumeLevel: h.analysis.volumeLevel })))}
       }
     `;
 

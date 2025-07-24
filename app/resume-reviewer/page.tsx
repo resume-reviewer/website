@@ -43,7 +43,7 @@ export default function ResumeReviewerPage() {
                     </svg>
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">1. Job Details</h3>
-                  <p className="text-gray-600 text-sm">Provide information about the job you're applying for</p>
+                  <p className="text-gray-600 text-sm">Provide information about the job you&apos;re applying for</p>
                 </div>
 
                 <div className="text-center p-6 bg-white rounded-lg shadow-sm border">

@@ -66,7 +66,7 @@ export default function LoginPage() {
           <div className="text-center mt-4 text-[#667eea] font-medium">{error}</div>
         )}
         <div className="text-center mt-6 text-[#666]">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link href="/register" className="text-[#667eea] hover:underline font-semibold">
             Register
           </Link>
