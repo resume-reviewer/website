@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState, useEffect, useMemo, JSX } from 'react';
+import { useState, useEffect, useMemo, JSX, useCallback } from 'react';
 import Link from 'next/link';
 import { JobApplication } from '@/lib/types-and-utils';
 import JobCard from '@/components/jobs/JobCard';
@@ -11,6 +11,7 @@ import {
   FaSearch, FaFilter, FaPlus, FaBookmark, FaPaperPlane, FaMicrophone, FaTrophy, FaTimes 
 } from 'react-icons/fa';
 import { signOut, useSession } from 'next-auth/react';
+import Sidebar from '@/components/layout/Sidebar';
 
 const KANBAN_COLUMNS: { title: 'Saved' | 'Applied' | 'Interview' | 'Offer' | 'Rejected'; icon: JSX.Element }[] = [
   { title: 'Saved', icon: <FaBookmark style={{ color: '#3b82f6' }} /> },
@@ -47,6 +48,14 @@ export default function JobTrackerPage() {
     fetchJobs();
   }, []);
 
+  const handleStatusChange = useCallback((jobId: string, newStatus: JobApplication['status']) => {
+    setJobs(prevJobs =>
+      prevJobs.map(job =>
+        job.id === jobId ? { ...job, status: newStatus } : job
+      )
+    );
+  }, []);
+  
   const filteredJobs = useMemo(() => {
     return jobs.filter(job =>
       job.job_title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -63,28 +72,7 @@ export default function JobTrackerPage() {
 
   return (
     <div className='flex'>
-      {/* Sidebar - Diterjemahkan dari HTML Anda */}
-      <div className="sidebar">
-        <div className="sidebar-header">
-          <div className="logo"><FaRocket /> CareerPilot</div>
-        </div>
-        <nav className="sidebar-nav">
-          <Link href="/dashboard" className="nav-item active"><FaThLarge /> Job Tracker</Link>
-          <Link href="/jobs/add" className="nav-item"><FaPlusCircle /> Add Job</Link>
-          <a href="#" className="nav-item"><FaFolder /> Documents</a>
-          <a href="#" className="nav-item"><FaBrain /> AI Tools</a>
-          <a href="#" className="nav-item"><FaChartLine /> Dashboard</a>
-          <a href="#" className="nav-item"><FaCrown /> Upgrade Plan</a>
-          <a href="#" className="nav-item"><FaCog /> Settings</a>
-        </nav>
-        <div className="user-profile">
-            <div className="user-avatar">{session?.user?.email?.charAt(0).toUpperCase() || 'U'}</div>
-            <div>
-                <div style={{ fontWeight: 600, color: '#1e293b' }}>{session?.user?.email}</div>
-                <button onClick={() => signOut()} style={{fontSize: '0.8rem', color: '#667eea', background: 'none', border: 'none', cursor: 'pointer', padding: 0}}>Logout</button>
-            </div>
-        </div>
-      </div>
+      <Sidebar />
       
       {/* Main Content - Diterjemahkan dari HTML Anda */}
       <main className="main-content">
@@ -126,9 +114,15 @@ export default function JobTrackerPage() {
                     <div className="column-count">{filteredJobs.filter(j => j.status === column.title).length}</div>
                   </div>
                   <div className="job-cards">
-                    {filteredJobs.filter(j => j.status === column.title).map(job => (
-                      <JobCard key={job.id} job={job} />
-                    ))}
+                    {filteredJobs
+                      .filter(j => j.status === column.title)
+                      .map(job => (
+                        <JobCard
+                          key={job.id}
+                          job={job}
+                          onStatusChange={handleStatusChange} // <-- KIRIM FUNGSI KE CHILD
+                        />
+                      ))}
                   </div>
                 </div>
               ))}

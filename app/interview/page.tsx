@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { JobApplication, InterviewSummary } from '@/lib/types-and-utils'; 
 import { signOut, useSession } from 'next-auth/react';
 import { FaRocket, FaThLarge, FaPlusCircle, FaFolder, FaBrain, FaChartLine, FaCrown, FaCog } from 'react-icons/fa';
+import Sidebar from '@/components/layout/Sidebar';
 
 // Definisikan tipe konteks di sini atau impor
 type InterviewContext = Pick<JobApplication, 'job_title' | 'company_name' | 'job_description' | 'language'>;
@@ -43,23 +44,7 @@ export default function MockInterviewPage() {
 
   return (
     <div className='flex'>
-      {/* Sidebar */}
-      <div className="sidebar">
-        <div className="sidebar-header"><div className="logo"><FaRocket /> CareerPilot</div></div>
-        <nav className="sidebar-nav">
-          <Link href="/dashboard" className="nav-item"><FaThLarge /> Job Tracker</Link>
-          {/* Tandai link AI Tools sebagai aktif */}
-          <a href="#" className="nav-item active"><FaBrain /> AI Tools</a>
-          {/* ... link lainnya ... */}
-        </nav>
-        <div className="user-profile">
-            <div className="user-avatar">{session?.user?.email?.charAt(0).toUpperCase() || 'U'}</div>
-            <div>
-                <div style={{ fontWeight: 600, color: '#1e293b' }}>{session?.user?.email}</div>
-                <button onClick={() => signOut()} style={{fontSize: '0.8rem', color: '#667eea', background: 'none', border: 'none', cursor: 'pointer', padding: 0}}>Logout</button>
-            </div>
-        </div>
-      </div>
+      <Sidebar />
 
       {/* Main Content */}
       <main className="main-content">

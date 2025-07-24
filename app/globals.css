@@ -110,3 +110,20 @@ body {
 @keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
 .success-title { font-size: 1.8rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem; }
 .success-message { color: #64748b; margin-bottom: 2rem; }
+
+.action-btn-sm {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.action-btn-sm:hover {
+  transform: translateY(-1px);
+}

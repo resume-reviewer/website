@@ -35,7 +35,6 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST: Mengunggah file baru
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id || !session.supabaseAccessToken) {
@@ -46,13 +45,13 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
     const documentType = formData.get('documentType') as string;
+    const jobId = formData.get('job_id') as string | null; // <-- AMBIL JOB_ID
 
     if (!file || !documentType) {
       return NextResponse.json({ error: 'File and document type are required' }, { status: 400 });
     }
 
     const supabase = getSupabaseAuthedClient(session.supabaseAccessToken);
-    // Membuat path file yang aman di dalam folder unik milik pengguna
     const filePath = `${session.user.id}/${Date.now()}_${file.name}`;
 
     const { error: uploadError } = await supabase.storage
@@ -60,15 +59,29 @@ export async function POST(request: NextRequest) {
       .upload(filePath, file);
 
     if (uploadError) throw uploadError;
-
-    const { data: dbData, error: dbError } = await supabase
-      .from('documents')
-      .insert({
+    
+    // Siapkan data untuk dimasukkan ke database
+    const documentData: {
+        user_id: string;
+        file_name: string;
+        file_path: string;
+        document_type: string;
+        job_id?: string; // Kolom job_id opsional
+    } = {
         user_id: session.user.id,
         file_name: file.name,
         file_path: filePath,
         document_type: documentType,
-      })
+    };
+
+    // Tambahkan job_id jika ada
+    if (jobId) {
+        documentData.job_id = jobId;
+    }
+
+    const { data: dbData, error: dbError } = await supabase
+      .from('documents')
+      .insert(documentData) // <-- Gunakan objek data yang sudah disiapkan
       .select()
       .single();
 
