@@ -15,11 +15,7 @@ import {
   FaFileAlt,
   FaPlus,
   FaUpload,
-  FaLink,
   FaRobot,
-  FaFire,
-  FaBolt,
-  FaLeaf,
   FaBuilding, 
   FaCalendarAlt, 
   FaMoneyBillAlt, 
@@ -27,6 +23,7 @@ import {
   FaMapMarkerAlt
 } from "react-icons/fa"
 import type { JobApplication } from "@/lib/types-and-utils"
+import { FcHighPriority, FcLowPriority, FcMediumPriority } from "react-icons/fc"
 
 // Tipe untuk dokumen yang akan diunggah dalam flow ini
 interface DocumentForUpload {
@@ -231,7 +228,7 @@ export default function AddJobForm({ initialData, onFormSubmitSuccess, isEditMod
     {
       value: "high",
       label: "High Priority",
-      icon: <FaFire />,
+      icon: <FcHighPriority />,
       color: "from-red-400 to-red-600",
       bgColor: "bg-red-50 border-red-200",
       textColor: "text-red-700",
@@ -239,7 +236,7 @@ export default function AddJobForm({ initialData, onFormSubmitSuccess, isEditMod
     {
       value: "medium",
       label: "Medium Priority",
-      icon: <FaBolt />,
+      icon: <FcMediumPriority />,
       color: "from-yellow-400 to-yellow-600",
       bgColor: "bg-yellow-50 border-yellow-200",
       textColor: "text-yellow-700",
@@ -247,7 +244,7 @@ export default function AddJobForm({ initialData, onFormSubmitSuccess, isEditMod
     {
       value: "low",
       label: "Low Priority",
-      icon: <FaLeaf />,
+      icon: <FcLowPriority />,
       color: "from-green-400 to-green-600",
       bgColor: "bg-green-50 border-green-200",
       textColor: "text-green-700",

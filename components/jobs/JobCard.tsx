@@ -124,12 +124,7 @@ export default function JobCard({ job, onStatusChange, onDragStart, onDeleteSucc
     switch (job.status) {
       case 'Saved':
         return (
-          <button
-            onClick={(e) => { e.stopPropagation(); router.push(`/jobs/add?edit=${job.id}`); }}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-full transition-colors"
-          >
-            <FaEdit className="text-xs" /> Edit Details
-          </button>
+          <div></div>
         );
       case 'Applied':
         return (
@@ -184,9 +179,7 @@ export default function JobCard({ job, onStatusChange, onDragStart, onDeleteSucc
       <div className="flex-1">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="company-logo w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-              {getCompanyInitial(job.company_name)}
-            </div>
+            
             <div className="min-w-0 flex-1">
               <h3 className="job-title font-bold text-gray-800 leading-tight text-sm mb-1 truncate">{job.job_title}</h3>
               <p className="company-name text-xs text-gray-500 truncate">{job.company_name}</p>
@@ -253,11 +246,11 @@ export default function JobCard({ job, onStatusChange, onDragStart, onDeleteSucc
       </div>
 
       {/* Footer Section */}
-      <div className="border-t border-gray-100 pt-3 flex justify-between items-center gap-3">
+      <div className="border-t border-gray-100 pt-3 flex-wrap justify-between items-center gap-3">
         <div className="flex-shrink-0">
           {renderStatusSpecificAction()}
         </div>
-        <p className="text-xs text-gray-400 flex-shrink-0">
+        <p className="text-xs mt-1 text-gray-400 flex-shrink-0">
           {getTimeAgo(job.created_at)}
         </p>
       </div>
