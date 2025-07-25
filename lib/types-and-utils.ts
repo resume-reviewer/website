@@ -123,7 +123,7 @@ export interface InterviewSummary {
   overallFeedback: string;
   strengths: string[];
   areasForImprovement: {
-    content: string[]; 
+    content: string[];
     delivery: string[];
   };
   performanceMetrics: {

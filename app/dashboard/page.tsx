@@ -70,6 +70,7 @@ export default function JobTrackerPage() {
   const [error, setError] = useState("")
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedFilter, setSelectedFilter] = useState<"all" | "high" | "medium" | "low">("all")
+  const [draggedJob, setDraggedJob] = useState<JobApplication | null>(null); // State untuk pekerjaan yang sedang di-drag
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -165,11 +166,65 @@ export default function JobTrackerPage() {
     },
   ]
 
+  // Handler untuk memulai drag
+  const handleDragStart = (e: React.DragEvent, job: JobApplication) => {
+    setDraggedJob(job);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", job.id!); // Kirim ID pekerjaan
+  };
+
+  // Handler untuk event drag over (memungkinkan drop)
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault(); // Penting: mencegah perilaku default untuk memungkinkan drop
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  // Handler untuk drop
+  const handleDrop = async (e: React.DragEvent, newStatus: JobApplication["status"]) => {
+    e.preventDefault();
+    if (!draggedJob) return;
+
+    // Pastikan status yang di-drop berbeda dari status saat ini
+    if (draggedJob.status === newStatus) {
+      setDraggedJob(null);
+      return;
+    }
+
+    setIsLoading(true); // Tampilkan loading saat update status
+    setError("");
+
+    try {
+      const response = await fetch(`/api/jobs/${draggedJob.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to update job status.");
+      }
+
+      // Update state lokal setelah sukses
+      setJobs((prevJobs) =>
+        prevJobs.map((job) => (job.id === draggedJob.id ? { ...job, status: newStatus } : job))
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update job status.");
+      console.error("Error updating job status via drag-and-drop:", err);
+    } finally {
+      setIsLoading(false);
+      setDraggedJob(null); // Reset dragged job
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50 to-blue-50">
       <Sidebar />
 
+      {/* Main Content */}
       <main className="main-content">
+        {/* Enhanced Header */}
         <div className="bg-white/80 backdrop-blur-xl border-b border-slate-200/50 sticky top-0 z-50">
           <div className="px-8 py-6">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
@@ -188,6 +243,7 @@ export default function JobTrackerPage() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
+                {/* Search */}
                 <div className="relative">
                   <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
@@ -199,6 +255,7 @@ export default function JobTrackerPage() {
                   />
                 </div>
 
+                {/* Add Job Button */}
                 <Link
                   href="/jobs/add"
                   className="flex items-center gap-3 bg-gradient-to-r from-[#7DD5DB] to-[#3B6597] text-white px-6 py-3 rounded-xl font-bold shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl group whitespace-nowrap"
@@ -211,6 +268,7 @@ export default function JobTrackerPage() {
           </div>
         </div>
 
+        {/* Priority Filters */}
         <div className="px-8 py-6 bg-white/40 backdrop-blur-sm border-b border-slate-200/50">
           <div className="flex flex-wrap gap-3">
             {priorityFilters.map((filter) => (
@@ -232,8 +290,10 @@ export default function JobTrackerPage() {
           </div>
         </div>
 
+        {/* Enhanced Stats Section */}
         <div className="px-8 py-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-6 mb-8">
+            {/* Main Stats */}
             {KANBAN_COLUMNS.map((column) => (
               <div
                 key={column.title}
@@ -253,6 +313,7 @@ export default function JobTrackerPage() {
               </div>
             ))}
 
+            {/* Additional Stats */}
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-slate-200 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#7DD5DB] to-[#3B6597] flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -278,6 +339,7 @@ export default function JobTrackerPage() {
             </div>
           </div>
 
+          {/* Quick Actions */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <Link
               href="/jobs/add"
@@ -325,6 +387,7 @@ export default function JobTrackerPage() {
             </Link>
           </div>
 
+          {/* Enhanced Kanban Board */}
           {isLoading ? (
             <div className="flex items-center justify-center py-20">
               <div className="text-center">
@@ -353,6 +416,9 @@ export default function JobTrackerPage() {
                 {KANBAN_COLUMNS.map((column) => (
                   <div
                     key={column.title}
+                    // Tambahkan event handler drag-and-drop ke setiap kolom
+                    onDragOver={handleDragOver}
+                    onDrop={(e) => handleDrop(e, column.title)}
                     className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 shadow-lg"
                   >
                     <div className="p-6 border-b border-slate-200">
@@ -373,7 +439,12 @@ export default function JobTrackerPage() {
                       {filteredJobs
                         .filter((j) => j.status === column.title)
                         .map((job) => (
-                          <JobCard key={job.id} job={job} onStatusChange={handleStatusChange} />
+                          <JobCard 
+                            key={job.id} 
+                            job={job} 
+                            onStatusChange={handleStatusChange} 
+                            onDragStart={handleDragStart} // Teruskan prop onDragStart
+                          />
                         ))}
 
                       {filteredJobs.filter((j) => j.status === column.title).length === 0 && (

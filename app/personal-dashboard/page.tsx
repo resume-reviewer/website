@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
 import {
@@ -29,125 +29,84 @@ import {
   FaCheckCircle,
   FaExclamationTriangle,
   FaInfoCircle,
+  FaSpinner, // Tambahkan ikon spinner
+  FaTimes, // Tambahkan ikon times untuk error
 } from "react-icons/fa"
 import Sidebar from "@/components/layout/Sidebar"
 
-const DASHBOARD_DATA = {
+// Define interfaces for the dashboard data structure, similar to your API response
+interface DashboardData {
   user: {
-    name: "Maul Johnson",
-    email: "maul.johnson@email.com",
-    joinDate: "2024-01-15",
-    profileCompletion: 85,
-  },
+    name: string;
+    email: string | null | undefined;
+    joinDate: string;
+    profileCompletion: number;
+  };
   applications: {
-    total: 47,
-    thisMonth: 12,
-    lastMonth: 8,
-    thisWeek: 3,
-    responseRate: 23,
-    interviewRate: 15,
-    offerRate: 6,
-  },
+    total: number;
+    thisMonth: number;
+    lastMonth: number;
+    thisWeek: number;
+    responseRate: number;
+    interviewRate: number;
+    offerRate: number;
+  };
+  topRoles: { role: string; count: number; percentage: number; trend: string }[];
+  companies: { name: string; applications: number; status: string }[];
+  locations: { city: string; count: number; percentage: number }[];
+  activityTrend: { month: string; applications: number; interviews: number; offers: number }[];
+  documentsCount: number; // New field
+  // Hardcoded or simplified sections for now
   journey: {
-    currentStage: "Active Job Seeker",
-    progress: 68,
+    currentStage: string;
+    progress: number;
+    stages: { name: string; completed: boolean; date: string | null }[];
+  };
+  skills: {
+    technical: { skill: string; level: number; inDemand: boolean }[];
+    soft: { skill: string; level: number }[];
+  };
+  insights: { type: string; title: string; message: string; action: string }[];
+  recommendations: {
+    title: string;
+    description: string;
+    priority: string;
+    estimatedImpact: string;
+    action: string;
+    link: string;
+  }[];
+}
+
+
+// Placeholder for initial loading state or empty data
+const EMPTY_DASHBOARD_DATA: DashboardData = {
+  user: { name: "Guest", email: null, joinDate: new Date().toISOString().split('T')[0], profileCompletion: 0 },
+  applications: { total: 0, thisMonth: 0, lastMonth: 0, thisWeek: 0, responseRate: 0, interviewRate: 0, offerRate: 0 },
+  topRoles: [],
+  companies: [],
+  locations: [],
+  activityTrend: [],
+  documentsCount: 0,
+  journey: {
+    currentStage: "Getting Started",
+    progress: 0,
     stages: [
-      { name: "Profile Setup", completed: true, date: "2024-01-15" },
-      { name: "First Application", completed: true, date: "2024-01-18" },
-      { name: "Resume Optimization", completed: true, date: "2024-01-22" },
-      { name: "Interview Practice", completed: true, date: "2024-02-01" },
+      { name: "Profile Setup", completed: false, date: null },
+      { name: "First Application", completed: false, date: null },
+      { name: "Resume Optimization", completed: false, date: null },
+      { name: "Interview Practice", completed: false, date: null },
       { name: "Active Networking", completed: false, date: null },
       { name: "Job Offer", completed: false, date: null },
     ],
   },
-  topRoles: [
-    { role: "Frontend Developer", count: 15, percentage: 32, trend: "up" },
-    { role: "Full Stack Developer", count: 12, percentage: 26, trend: "up" },
-    { role: "React Developer", count: 8, percentage: 17, trend: "stable" },
-    { role: "Software Engineer", count: 7, percentage: 15, trend: "down" },
-    { role: "UI/UX Developer", count: 5, percentage: 10, trend: "up" },
-  ],
-  companies: [
-    { name: "Google", applications: 3, status: "Applied" },
-    { name: "Microsoft", applications: 2, status: "Interview" },
-    { name: "Meta", applications: 2, status: "Applied" },
-    { name: "Netflix", applications: 1, status: "Offer" },
-    { name: "Amazon", applications: 2, status: "Rejected" },
-  ],
-  locations: [
-    { city: "Jakarta", count: 18, percentage: 38 },
-    { city: "Bandung", count: 12, percentage: 26 },
-    { city: "Surabaya", count: 8, percentage: 17 },
-    { city: "Remote", count: 9, percentage: 19 },
-  ],
-  activityTrend: [
-    { month: "Jan", applications: 8, interviews: 2, offers: 0 },
-    { month: "Feb", applications: 12, interviews: 3, offers: 1 },
-    { month: "Mar", applications: 15, interviews: 4, offers: 1 },
-    { month: "Apr", applications: 12, interviews: 5, offers: 2 },
-  ],
   skills: {
-    technical: [
-      { skill: "React", level: 90, inDemand: true },
-      { skill: "TypeScript", level: 85, inDemand: true },
-      { skill: "Node.js", level: 80, inDemand: true },
-      { skill: "Python", level: 75, inDemand: false },
-      { skill: "AWS", level: 70, inDemand: true },
-    ],
-    soft: [
-      { skill: "Communication", level: 88 },
-      { skill: "Problem Solving", level: 92 },
-      { skill: "Leadership", level: 78 },
-      { skill: "Teamwork", level: 85 },
-    ],
+    technical: [],
+    soft: [],
   },
-  insights: [
-    {
-      type: "success",
-      title: "Strong Application Rate",
-      message: "You're applying to 3x more jobs than average users this month!",
-      action: "Keep up the momentum",
-    },
-    {
-      type: "warning",
-      title: "Low Response Rate",
-      message: "Your response rate is below average. Consider optimizing your resume.",
-      action: "Use AI Resume Reviewer",
-    },
-    {
-      type: "info",
-      title: "Interview Skills",
-      message: "Practice more interviews to improve your success rate.",
-      action: "Try Mock Interview",
-    },
-  ],
-  recommendations: [
-    {
-      title: "Optimize Your Resume",
-      description: "Your resume could be better tailored for Frontend Developer roles",
-      priority: "high",
-      estimatedImpact: "+15% response rate",
-      action: "Use Resume Reviewer",
-      link: "/resume-reviewer",
-    },
-    {
-      title: "Practice Technical Interviews",
-      description: "Improve your interview performance with AI-powered practice",
-      priority: "medium",
-      estimatedImpact: "+20% interview success",
-      action: "Start Mock Interview",
-      link: "/interview",
-    },
-    {
-      title: "Expand to New Locations",
-      description: "Consider remote opportunities to increase your job pool",
-      priority: "low",
-      estimatedImpact: "+30% more opportunities",
-      action: "Update Job Preferences",
-      link: "/jobs/add",
-    },
-  ],
-}
+  insights: [],
+  recommendations: [],
+};
+
 
 const PRIORITY_COLORS = {
   high: { bg: "bg-red-50", border: "border-red-200", text: "text-red-700", icon: <FaFire className="text-red-500" /> },
@@ -178,10 +137,31 @@ const INSIGHT_COLORS = {
 
 export default function PersonalDashboardPage() {
   const { data: session } = useSession()
-  const [selectedTimeframe, setSelectedTimeframe] = useState("month")
-  const [showDetailedStats, setShowDetailedStats] = useState(false)
+  const [dashboardData, setDashboardData] = useState<DashboardData>(EMPTY_DASHBOARD_DATA); // Gunakan state untuk data dashboard
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const data = DASHBOARD_DATA
+  const fetchData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch('/api/dashboard-data');
+      if (!response.ok) {
+        throw new Error('Failed to fetch dashboard data');
+      }
+      const data: DashboardData = await response.json();
+      setDashboardData(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An unknown error occurred.");
+      setDashboardData(EMPTY_DASHBOARD_DATA); // Reset to empty on error
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const getProgressColor = (percentage: number) => {
     if (percentage >= 80) return "from-green-500 to-emerald-500"
@@ -200,6 +180,48 @@ export default function PersonalDashboardPage() {
     }
   }
 
+  // Calculate days on job search journey
+  const daysOnJourney = Math.floor(
+    (new Date().getTime() - new Date(dashboardData.user.joinDate).getTime()) / (1000 * 60 * 60 * 24),
+  );
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50 to-blue-50">
+        <Sidebar />
+        <main className="main-content flex items-center justify-center">
+          <div className="text-center py-20">
+            <div className="w-16 h-16 border-4 border-[#7DD5DB] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-slate-600 font-medium">Loading your personal dashboard...</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50 to-blue-50">
+        <Sidebar />
+        <main className="main-content flex items-center justify-center">
+          <div className="bg-red-50 border border-red-200 rounded-2xl p-8 text-center max-w-lg mx-auto">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <FaTimes className="text-red-600 text-xl" />
+            </div>
+            <h3 className="text-lg font-bold text-red-800 mb-2">Error Loading Dashboard</h3>
+            <p className="text-red-600">{error}</p>
+            <button
+              onClick={fetchData}
+              className="mt-4 px-6 py-3 bg-[#7DD5DB] text-white rounded-xl font-bold hover:bg-[#3B6597] transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50 to-blue-50">
       <Sidebar />
@@ -211,13 +233,6 @@ export default function PersonalDashboardPage() {
           <div className="px-8 py-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-6">
-                <Link
-                  href="/dashboard"
-                  className="flex items-center gap-3 px-4 py-2 bg-white/60 backdrop-blur-sm text-slate-600 rounded-xl border border-slate-200 hover:bg-white hover:text-[#3B6597] hover:border-[#7DD5DB] transition-all duration-300 hover:-translate-y-1 hover:shadow-lg group"
-                >
-                  <FaArrowLeft className="group-hover:-translate-x-1 transition-transform" />
-                  <span className="font-semibold">Back to Tracker</span>
-                </Link>
 
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#7DD5DB] to-[#3B6597] flex items-center justify-center shadow-lg">
@@ -263,13 +278,11 @@ export default function PersonalDashboardPage() {
                   </div>
                   <div>
                     <h2 className="text-3xl font-black text-slate-800 mb-2">
-                      Welcome back, {data.user.name.split(" ")[0]}! 👋
+                      Welcome back, {dashboardData.user.name.split(" ")[0]}! 👋
                     </h2>
                     <p className="text-slate-600 text-lg">
                       You've been on your job search journey for{" "}
-                      {Math.floor(
-                        (new Date().getTime() - new Date(data.user.joinDate).getTime()) / (1000 * 60 * 60 * 24),
-                      )}{" "}
+                      {daysOnJourney}{" "}
                       days
                     </p>
                     <div className="flex items-center gap-4 mt-3">
@@ -277,7 +290,7 @@ export default function PersonalDashboardPage() {
                         <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                         <span className="text-sm font-medium text-green-600">Active Job Seeker</span>
                       </div>
-                      <div className="text-sm text-slate-500">Profile {data.user.profileCompletion}% complete</div>
+                      <div className="text-sm text-slate-500">Profile {dashboardData.user.profileCompletion}% complete</div>
                     </div>
                   </div>
                 </div>
@@ -285,15 +298,15 @@ export default function PersonalDashboardPage() {
                 {/* Quick Stats */}
                 <div className="grid grid-cols-3 gap-6">
                   <div className="text-center">
-                    <div className="text-3xl font-black text-[#3B6597] mb-1">{data.applications.total}</div>
+                    <div className="text-3xl font-black text-[#3B6597] mb-1">{dashboardData.applications.total}</div>
                     <div className="text-sm font-semibold text-slate-600">Total Applications</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-3xl font-black text-green-600 mb-1">{data.applications.responseRate}%</div>
+                    <div className="text-3xl font-black text-green-600 mb-1">{dashboardData.applications.responseRate}%</div>
                     <div className="text-sm font-semibold text-slate-600">Response Rate</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-3xl font-black text-purple-600 mb-1">{data.applications.offerRate}%</div>
+                    <div className="text-3xl font-black text-purple-600 mb-1">{dashboardData.applications.offerRate}%</div>
                     <div className="text-sm font-semibold text-slate-600">Offer Rate</div>
                   </div>
                 </div>
@@ -301,7 +314,7 @@ export default function PersonalDashboardPage() {
             </div>
           </div>
 
-          {/* Journey Progress */}
+          {/* Journey Progress (currently mostly hardcoded as per discussion) */}
           <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-slate-200 p-8">
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-3">
@@ -314,7 +327,7 @@ export default function PersonalDashboardPage() {
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-3xl font-black text-purple-600 mb-1">{data.journey.progress}%</div>
+                <div className="text-3xl font-black text-purple-600 mb-1">{dashboardData.journey.progress}%</div>
                 <div className="text-sm font-semibold text-slate-600">Complete</div>
               </div>
             </div>
@@ -324,14 +337,14 @@ export default function PersonalDashboardPage() {
               <div className="w-full h-4 bg-slate-200 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full transition-all duration-1000 ease-out"
-                  style={{ width: `${data.journey.progress}%` }}
+                  style={{ width: `${dashboardData.journey.progress}%` }}
                 ></div>
               </div>
             </div>
 
             {/* Journey Stages */}
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {data.journey.stages.map((stage, index) => (
+              {dashboardData.journey.stages.map((stage, index) => (
                 <div
                   key={index}
                   className={`relative p-4 rounded-xl border-2 transition-all duration-300 ${
@@ -370,14 +383,15 @@ export default function PersonalDashboardPage() {
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
                   <FaBriefcase className="text-white text-xl" />
                 </div>
+                {/* Trend calculation is still simplified */}
                 <div className="flex items-center gap-1 text-green-600">
                   <FaArrowUp className="text-sm" />
-                  <span className="text-sm font-bold">+50%</span>
+                  <span className="text-sm font-bold">{dashboardData.applications.lastMonth > 0 ? ((dashboardData.applications.thisMonth / dashboardData.applications.lastMonth * 100) - 100).toFixed(0) : '+1'}%</span>
                 </div>
               </div>
-              <div className="text-3xl font-black text-slate-800 mb-1">{data.applications.thisMonth}</div>
+              <div className="text-3xl font-black text-slate-800 mb-1">{dashboardData.applications.thisMonth}</div>
               <div className="text-sm font-semibold text-slate-600 mb-2">Applications This Month</div>
-              <div className="text-xs text-slate-500">vs {data.applications.lastMonth} last month</div>
+              <div className="text-xs text-slate-500">vs {dashboardData.applications.lastMonth} last month</div>
             </div>
 
             {/* Interview Rate */}
@@ -386,14 +400,15 @@ export default function PersonalDashboardPage() {
                 <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
                   <FaMicrophone className="text-white text-xl" />
                 </div>
+                 {/* Trend calculation is still simplified */}
                 <div className="flex items-center gap-1 text-green-600">
                   <FaArrowUp className="text-sm" />
                   <span className="text-sm font-bold">+5%</span>
                 </div>
               </div>
-              <div className="text-3xl font-black text-slate-800 mb-1">{data.applications.interviewRate}%</div>
+              <div className="text-3xl font-black text-slate-800 mb-1">{dashboardData.applications.interviewRate}%</div>
               <div className="text-sm font-semibold text-slate-600 mb-2">Interview Rate</div>
-              <div className="text-xs text-slate-500">7 interviews from 47 applications</div>
+              <div className="text-xs text-slate-500">{dashboardData.applications.total} applications</div> {/* simplified */}
             </div>
 
             {/* Response Rate */}
@@ -402,14 +417,15 @@ export default function PersonalDashboardPage() {
                 <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
                   <FaEye className="text-white text-xl" />
                 </div>
+                 {/* Trend calculation is still simplified */}
                 <div className="flex items-center gap-1 text-red-600">
                   <FaArrowDown className="text-sm" />
                   <span className="text-sm font-bold">-3%</span>
                 </div>
               </div>
-              <div className="text-3xl font-black text-slate-800 mb-1">{data.applications.responseRate}%</div>
+              <div className="text-3xl font-black text-slate-800 mb-1">{dashboardData.applications.responseRate}%</div>
               <div className="text-sm font-semibold text-slate-600 mb-2">Response Rate</div>
-              <div className="text-xs text-slate-500">11 responses from 47 applications</div>
+              <div className="text-xs text-slate-500">{dashboardData.applications.total} applications</div> {/* simplified */}
             </div>
 
             {/* This Week */}
@@ -418,12 +434,13 @@ export default function PersonalDashboardPage() {
                 <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
                   <FaCalendarAlt className="text-white text-xl" />
                 </div>
+                 {/* Trend calculation is still simplified */}
                 <div className="flex items-center gap-1 text-green-600">
                   <FaArrowUp className="text-sm" />
                   <span className="text-sm font-bold">+2</span>
                 </div>
               </div>
-              <div className="text-3xl font-black text-slate-800 mb-1">{data.applications.thisWeek}</div>
+              <div className="text-3xl font-black text-slate-800 mb-1">{dashboardData.applications.thisWeek}</div>
               <div className="text-sm font-semibold text-slate-600 mb-2">Applications This Week</div>
               <div className="text-xs text-slate-500">Keep up the momentum!</div>
             </div>
@@ -446,7 +463,7 @@ export default function PersonalDashboardPage() {
               </div>
 
               <div className="space-y-4">
-                {data.topRoles.map((role, index) => (
+                {dashboardData.topRoles.map((role, index) => (
                   <div key={index} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 bg-gradient-to-br from-slate-600 to-slate-700 rounded-lg flex items-center justify-center text-white font-bold">
@@ -466,6 +483,9 @@ export default function PersonalDashboardPage() {
                     </div>
                   </div>
                 ))}
+                {dashboardData.topRoles.length === 0 && (
+                  <p className="text-center text-slate-500 py-4">No job roles recorded yet.</p>
+                )}
               </div>
             </div>
 
@@ -485,7 +505,7 @@ export default function PersonalDashboardPage() {
 
               {/* Simple Bar Chart */}
               <div className="space-y-4">
-                {data.activityTrend.map((month, index) => (
+                {dashboardData.activityTrend.map((month, index) => (
                   <div key={index} className="space-y-2">
                     <div className="flex justify-between items-center">
                       <span className="font-semibold text-slate-700">{month.month}</span>
@@ -494,8 +514,8 @@ export default function PersonalDashboardPage() {
                     <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full transition-all duration-1000"
-                        style={{ width: `${(month.applications / 20) * 100}%` }}
-                      ></div>
+                        style={{ width: `${(month.applications / Math.max(...dashboardData.activityTrend.map(a => a.applications), 1)) * 100}%` }}
+                      ></div> {/* Dynamic width based on max applications */}
                     </div>
                     <div className="flex justify-between text-xs text-slate-500">
                       <span>{month.interviews} interviews</span>
@@ -503,11 +523,14 @@ export default function PersonalDashboardPage() {
                     </div>
                   </div>
                 ))}
+                 {dashboardData.activityTrend.length === 0 && (
+                  <p className="text-center text-slate-500 py-4">No application activity recorded yet.</p>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Skills Analysis */}
+          {/* Skills Analysis (still hardcoded as per discussion) */}
           <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-slate-200 p-8">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center">
@@ -527,7 +550,7 @@ export default function PersonalDashboardPage() {
                   Technical Skills
                 </h4>
                 <div className="space-y-4">
-                  {data.skills.technical.map((skill, index) => (
+                  {dashboardData.skills.technical.map((skill, index) => (
                     <div key={index} className="space-y-2">
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-2">
@@ -552,6 +575,9 @@ export default function PersonalDashboardPage() {
                       </div>
                     </div>
                   ))}
+                  {dashboardData.skills.technical.length === 0 && (
+                    <p className="text-slate-500">No technical skills data available.</p>
+                  )}
                 </div>
               </div>
 
@@ -562,7 +588,7 @@ export default function PersonalDashboardPage() {
                   Soft Skills
                 </h4>
                 <div className="space-y-4">
-                  {data.skills.soft.map((skill, index) => (
+                  {dashboardData.skills.soft.map((skill, index) => (
                     <div key={index} className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="font-semibold text-slate-700">{skill.skill}</span>
@@ -576,12 +602,15 @@ export default function PersonalDashboardPage() {
                       </div>
                     </div>
                   ))}
+                  {dashboardData.skills.soft.length === 0 && (
+                    <p className="text-slate-500">No soft skills data available.</p>
+                  )}
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Insights & Alerts */}
+          {/* Insights & Alerts (still hardcoded as per discussion) */}
           <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-slate-200 p-8">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center">
@@ -594,7 +623,7 @@ export default function PersonalDashboardPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {data.insights.map((insight, index) => {
+              {dashboardData.insights.map((insight, index) => {
                 const colors = INSIGHT_COLORS[insight.type as keyof typeof INSIGHT_COLORS]
                 return (
                   <div
@@ -618,10 +647,13 @@ export default function PersonalDashboardPage() {
                   </div>
                 )
               })}
+               {dashboardData.insights.length === 0 && (
+                <div className="col-span-full text-center text-slate-500 py-4">No insights available yet.</div>
+              )}
             </div>
           </div>
 
-          {/* Strategic Recommendations */}
+          {/* Strategic Recommendations (still hardcoded as per discussion) */}
           <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-slate-200 p-8">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 bg-gradient-to-br from-[#7DD5DB] to-[#3B6597] rounded-xl flex items-center justify-center">
@@ -634,7 +666,7 @@ export default function PersonalDashboardPage() {
             </div>
 
             <div className="space-y-6">
-              {data.recommendations.map((rec, index) => {
+              {dashboardData.recommendations.map((rec, index) => {
                 const colors = PRIORITY_COLORS[rec.priority as keyof typeof PRIORITY_COLORS]
                 return (
                   <div
@@ -673,6 +705,9 @@ export default function PersonalDashboardPage() {
                   </div>
                 )
               })}
+              {dashboardData.recommendations.length === 0 && (
+                <p className="text-center text-slate-500 py-4">No recommendations available yet.</p>
+              )}
             </div>
           </div>
 
@@ -691,7 +726,7 @@ export default function PersonalDashboardPage() {
               </div>
 
               <div className="space-y-4">
-                {data.companies.map((company, index) => (
+                {dashboardData.companies.map((company, index) => (
                   <div key={index} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
@@ -717,6 +752,9 @@ export default function PersonalDashboardPage() {
                     </span>
                   </div>
                 ))}
+                {dashboardData.companies.length === 0 && (
+                  <p className="text-center text-slate-500 py-4">No companies recorded yet.</p>
+                )}
               </div>
             </div>
 
@@ -733,7 +771,7 @@ export default function PersonalDashboardPage() {
               </div>
 
               <div className="space-y-4">
-                {data.locations.map((location, index) => (
+                {dashboardData.locations.map((location, index) => (
                   <div key={index} className="space-y-2">
                     <div className="flex justify-between items-center">
                       <span className="font-semibold text-slate-700">{location.city}</span>
@@ -750,6 +788,9 @@ export default function PersonalDashboardPage() {
                     </div>
                   </div>
                 ))}
+                {dashboardData.locations.length === 0 && (
+                  <p className="text-center text-slate-500 py-4">No locations recorded yet.</p>
+                )}
               </div>
             </div>
           </div>

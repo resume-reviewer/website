@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import type { JobApplication, InterviewSummary, AnswerPayload } from "@/lib/types-and-utils"
 import { useInterviewEngine } from "@/lib/useInterviewEngine"
 import {
@@ -38,6 +38,8 @@ export default function LiveInterview({ interviewContext, onInterviewComplete }:
   const [interviewStartTime, setInterviewStartTime] = useState<Date | null>(null)
   const [currentAnswerStartTime, setCurrentAnswerStartTime] = useState<Date | null>(null)
   const [showMetrics, setShowMetrics] = useState(false)
+  const [elapsedOverallTime, setElapsedOverallTime] = useState("00:00");
+  const [elapsedAnswerTime, setElapsedAnswerTime] = useState("00:00");
 
   const {
     videoRef,
@@ -48,7 +50,7 @@ export default function LiveInterview({ interviewContext, onInterviewComplete }:
     transcribedText,
     startAnswering,
     stopAnswering,
-  } = useInterviewEngine()
+  } = useInterviewEngine(interviewContext.language); 
 
   const mapContextToApiPayload = (context: InterviewContext) => ({
     jobTitle: context.job_title,
@@ -87,6 +89,39 @@ export default function LiveInterview({ interviewContext, onInterviewComplete }:
     }
     fetchFirstQuestion()
   }, [isEngineReady, interviewContext])
+
+  useEffect(() => {
+    if (!interviewStartTime) return;
+
+    const timerInterval = setInterval(() => {
+      const now = new Date();
+      const diff = Math.floor((now.getTime() - interviewStartTime.getTime()) / 1000);
+      const minutes = Math.floor(diff / 60);
+      const seconds = diff % 60;
+      setElapsedOverallTime(`${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`);
+    }, 1000); 
+
+    return () => clearInterval(timerInterval); 
+  }, [interviewStartTime]);
+
+  useEffect(() => {
+    let timerInterval: NodeJS.Timeout | null = null;
+    if (isListening && currentAnswerStartTime) {
+      timerInterval = setInterval(() => {
+        const now = new Date();
+        const diff = Math.floor((now.getTime() - currentAnswerStartTime.getTime()) / 1000);
+        const minutes = Math.floor(diff / 60);
+        const seconds = diff % 60;
+        setElapsedAnswerTime(`${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`);
+      }, 1000);
+    } else {
+      setElapsedAnswerTime("00:00");
+    }
+
+    return () => {
+      if (timerInterval) clearInterval(timerInterval);
+    };
+  }, [isListening, currentAnswerStartTime]);
 
   const handleToggleAnswer = async () => {
     if (!isListening) {
@@ -128,21 +163,21 @@ export default function LiveInterview({ interviewContext, onInterviewComplete }:
         setLastFeedback(data.feedback)
 
         if (data.nextQuestion === "END_OF_INTERVIEW") {
-          endInterview(newHistory)
+          endInterview(newHistory);
         } else {
-          setCurrentQuestion(data.nextQuestion)
-          setQuestionCount((prev) => prev + 1)
-          setCurrentAnswerStartTime(null)
-          setIsLoading(false)
+          setCurrentQuestion(data.nextQuestion);
+          setQuestionCount((prev) => prev + 1);
+          setCurrentAnswerStartTime(null);
+          setIsLoading(false);
         }
       } catch (error) {
-        console.error("Error submitting answer:", error)
-        setLastFeedback(`Error: ${(error as Error).message}. You can end the interview manually.`)
-        setCurrentQuestion("An error occurred. Please wait or end the interview.")
-        setIsLoading(false)
+        console.error("Error submitting answer:", error);
+        setLastFeedback(`Error: ${(error as Error).message}. You can end the interview manually.`);
+        setCurrentQuestion("An error occurred. Please wait or end the interview.");
+        setIsLoading(false);
       }
     }
-  }
+  };
 
   const endInterview = async (finalHistory: AnswerPayload[]) => {
     setIsLoading(true)
@@ -158,25 +193,7 @@ export default function LiveInterview({ interviewContext, onInterviewComplete }:
     onInterviewComplete(summary)
   }
 
-  const getElapsedTime = () => {
-    if (!interviewStartTime) return "00:00"
-    const now = new Date()
-    const diff = Math.floor((now.getTime() - interviewStartTime.getTime()) / 1000)
-    const minutes = Math.floor(diff / 60)
-    const seconds = diff % 60
-    return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
-  }
-
-  const getCurrentAnswerTime = () => {
-    if (!currentAnswerStartTime || !isListening) return "00:00"
-    const now = new Date()
-    const diff = Math.floor((now.getTime() - currentAnswerStartTime.getTime()) / 1000)
-    const minutes = Math.floor(diff / 60)
-    const seconds = diff % 60
-    return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
-  }
-
-  if (!isEngineReady) {
+if (!isEngineReady) {
     return (
       <div className="max-w-4xl mx-auto">
         <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200 p-12 text-center">
@@ -206,7 +223,7 @@ export default function LiveInterview({ interviewContext, onInterviewComplete }:
               <h1 className="text-xl font-bold text-slate-800">{interviewContext.job_title} Interview</h1>
               <p className="text-slate-600">
                 {interviewContext.company_name && `${interviewContext.company_name} • `}
-                Question {questionCount} • {getElapsedTime()}
+                Question {questionCount} • <strong>{elapsedOverallTime}</strong>
               </p>
             </div>
           </div>
@@ -276,7 +293,9 @@ export default function LiveInterview({ interviewContext, onInterviewComplete }:
                   {isListening && (
                     <div className="flex items-center gap-2 text-sm text-green-600">
                       <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                      <span>Recording • {getCurrentAnswerTime()}</span>
+                      <span>
+                        Recording • <strong>{elapsedAnswerTime}</strong>
+                      </span> {/* Gunakan state elapsedAnswerTime */}
                     </div>
                   )}
                 </div>
@@ -466,7 +485,9 @@ export default function LiveInterview({ interviewContext, onInterviewComplete }:
 
                 <div className="bg-green-50 rounded-xl p-4 border border-green-200">
                   <div className="text-center">
-                    <div className="text-2xl font-black text-green-800 mb-1">{getElapsedTime()}</div>
+                    <div className="text-2xl font-black text-green-800 mb-1">
+                      {elapsedOverallTime}
+                    </div> {/* Gunakan state elapsedOverallTime */}
                     <div className="text-sm text-green-600">Total Time</div>
                   </div>
                 </div>
