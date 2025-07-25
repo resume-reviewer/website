@@ -124,7 +124,12 @@ export default function JobCard({ job, onStatusChange, onDragStart, onDeleteSucc
     switch (job.status) {
       case 'Saved':
         return (
-          <div></div>
+          <button
+            onClick={handleOptimizeResume}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-full transition-colors"
+          >
+            <FaFileAlt className="text-xs" /> Review Resume
+          </button>
         );
       case 'Applied':
         return (

@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef, useCallback, useEffect } from "react"
 import { type JobDetails, type ResumeAnalysis } from "@/lib/types-and-utils"
 import FileUpload from "./file-upload"
 import {
@@ -66,6 +66,26 @@ export default function ResumeReviewerForm({ onAnalysisComplete }: ResumeReviewe
   const [currentStep, setCurrentStep] = useState(1)
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
   const [showIndustryDropdown, setShowIndustryDropdown] = useState(false)
+
+  // Load job context from localStorage if available (from JobCard)
+  useEffect(() => {
+    const jobContext = localStorage.getItem('resume_reviewer_job_context')
+    if (jobContext) {
+      try {
+        const parsedContext = JSON.parse(jobContext)
+        setJobDetails(prev => ({
+          ...prev,
+          jobTitle: parsedContext.jobTitle || "",
+          company: parsedContext.company || "",
+          jobDescription: parsedContext.jobDescription || "",
+        }))
+        // Clear the context from localStorage after loading to avoid stale data
+        localStorage.removeItem('resume_reviewer_job_context')
+      } catch (error) {
+        console.error('Error parsing job context from localStorage:', error)
+      }
+    }
+  }, [])
 
   const handleJobDetailsChange = useCallback(
     (field: keyof JobDetails, value: string) => {

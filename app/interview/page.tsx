@@ -132,6 +132,26 @@ export default function MockInterviewPage() {
                   <span className="text-sm font-medium text-slate-600">AI-Powered Interview Practice</span>
                 </div>
 
+                {/* Chrome Recommendation Notice */}
+                <div className="max-w-2xl mx-auto mb-8">
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 shadow-sm">
+                    <div className="flex items-center gap-3">
+                      <div className="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                        <FaVideo className="text-white text-sm" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-blue-800 font-semibold text-sm mb-1">
+                          🌟 Best Experience Guaranteed
+                        </p>
+                        <p className="text-blue-700 text-sm">
+                          For optimal camera and microphone performance, we recommend using <strong>Google Chrome</strong>. 
+                          Other browsers may have limited compatibility with our AI features.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <h1 className="text-5xl md:text-6xl font-black mb-6 leading-tight">
                   <span className="bg-gradient-to-r from-[#3B6597] via-[#7DD5DB] to-[#3B6597] bg-clip-text text-transparent">
                     Master Your
