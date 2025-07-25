@@ -3,7 +3,8 @@
 import type React from "react"
 
 import { useState, useRef, useCallback } from "react"
-import { type JobDetails, type ResumeAnalysis, validateFile, formatFileSize } from "@/lib/types-and-utils"
+import { type JobDetails, type ResumeAnalysis } from "@/lib/types-and-utils"
+import FileUpload from "./file-upload"
 import {
   FaUpload,
   FaFilePdf,
@@ -58,17 +59,13 @@ export default function ResumeReviewerForm({ onAnalysisComplete }: ResumeReviewe
     industry: "",
   })
 
-  const [resumeFile, setResumeFile] = useState<File | null>(null)
+  const [resumeText, setResumeText] = useState<string>("")
+  const [fileName, setFileName] = useState<string>("")
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [error, setError] = useState("")
   const [currentStep, setCurrentStep] = useState(1)
-  const [dragActive, setDragActive] = useState(false)
-  const [uploadProgress, setUploadProgress] = useState(0)
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
   const [showIndustryDropdown, setShowIndustryDropdown] = useState(false)
-
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const dropZoneRef = useRef<HTMLDivElement>(null)
 
   const handleJobDetailsChange = useCallback(
     (field: keyof JobDetails, value: string) => {
@@ -81,59 +78,18 @@ export default function ResumeReviewerForm({ onAnalysisComplete }: ResumeReviewe
     [validationErrors],
   )
 
-  const handleDrag = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true)
-    } else if (e.type === "dragleave") {
-      setDragActive(false)
-    }
-  }, [])
-
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setDragActive(false)
-
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFileSelection(e.dataTransfer.files[0])
-    }
-  }, [])
-
-  const handleFileSelection = useCallback((file: File) => {
-    const validationError = validateFile(file)
-    if (validationError) {
-      setError(validationError)
-      return
-    }
-
-    setResumeFile(file)
+  // File upload handlers
+  const handleFileProcessed = useCallback((text: string, fileName: string) => {
+    setResumeText(text)
+    setFileName(fileName)
     setError("")
-    setUploadProgress(100)
-
-    // Simulate upload progress
-    setUploadProgress(0)
-    const interval = setInterval(() => {
-      setUploadProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval)
-          return 100
-        }
-        return prev + 10
-      })
-    }, 100)
   }, [])
 
-  const handleFileChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0]
-      if (file) {
-        handleFileSelection(file)
-      }
-    },
-    [handleFileSelection],
-  )
+  const handleFileError = useCallback((error: string) => {
+    setError(error)
+    setResumeText("")
+    setFileName("")
+  }, [])
 
   const validateStep = useCallback(
     (step: number): boolean => {
@@ -149,40 +105,14 @@ export default function ResumeReviewerForm({ onAnalysisComplete }: ResumeReviewe
       }
 
       if (step === 2) {
-        if (!resumeFile) errors.resumeFile = "Resume file is required"
+        if (!resumeText.trim()) errors.resumeFile = "Resume file is required"
       }
 
       setValidationErrors(errors)
       return Object.keys(errors).length === 0
     },
-    [jobDetails, resumeFile],
+    [jobDetails, resumeText],
   )
-
-  const extractTextFromFile = async (file: File): Promise<string> => {
-    const formData = new FormData()
-    formData.append("file", file)
-
-    const response = await fetch("/api/parse-resume", {
-      method: "POST",
-      body: formData,
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      try {
-        const errorData = JSON.parse(errorText)
-        throw new Error(errorData.error || "Failed to parse resume file")
-      } catch (parseError) {
-        if (errorText.includes("<!DOCTYPE")) {
-          throw new Error("Server error occurred while parsing file. Please try again.")
-        }
-        throw new Error(`Failed to parse resume file (${response.status})`)
-      }
-    }
-
-    const { text } = await response.json()
-    return text
-  }
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -196,12 +126,6 @@ export default function ResumeReviewerForm({ onAnalysisComplete }: ResumeReviewe
     setError("")
 
     try {
-      let resumeText = ""
-
-      if (resumeFile) {
-        resumeText = await extractTextFromFile(resumeFile)
-      }
-
       const response = await fetch("/api/analyze-resume", {
         method: "POST",
         headers: {
@@ -246,11 +170,8 @@ export default function ResumeReviewerForm({ onAnalysisComplete }: ResumeReviewe
   }
 
   const removeFile = () => {
-    setResumeFile(null)
-    setUploadProgress(0)
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ""
-    }
+    setResumeText("")
+    setFileName("")
   }
 
   const getStepIcon = (step: number) => {
@@ -601,100 +522,25 @@ export default function ResumeReviewerForm({ onAnalysisComplete }: ResumeReviewe
 
               {/* Enhanced File Upload Area */}
               <div className="max-w-2xl mx-auto">
-                {!resumeFile ? (
-                  <div
-                    ref={dropZoneRef}
-                    onDragEnter={handleDrag}
-                    onDragLeave={handleDrag}
-                    onDragOver={handleDrag}
-                    onDrop={handleDrop}
-                    className={`
-                      relative border-3 border-dashed rounded-3xl p-12 text-center transition-all duration-300 cursor-pointer group
-                      ${
-                        dragActive
-                          ? "border-[#7DD5DB] bg-gradient-to-br from-[#7DD5DB]/10 to-[#3B6597]/10 scale-105"
-                          : "border-slate-300 hover:border-[#7DD5DB] hover:bg-gradient-to-br hover:from-[#7DD5DB]/5 hover:to-[#3B6597]/5"
-                      }
-                    `}
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      className="hidden"
-                      accept=".txt,.pdf"
-                      onChange={handleFileChange}
-                    />
+                <FileUpload 
+                  onFileProcessed={handleFileProcessed}
+                  onError={handleFileError}
+                />
 
-                    <div className="space-y-6">
-                      <div
-                        className={`
-                        w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-[#7DD5DB] to-[#3B6597] flex items-center justify-center transition-transform duration-300
-                        ${dragActive ? "scale-110" : "group-hover:scale-110"}
-                      `}
-                      >
-                        <FaCloudUploadAlt className="text-white text-3xl" />
-                      </div>
-
-                      <div>
-                        <h3 className="text-2xl font-bold text-slate-800 mb-2">
-                          {dragActive ? "Drop your resume here!" : "Upload Your Resume"}
-                        </h3>
-                        <p className="text-slate-600 mb-4">Drag and drop your file here, or click to browse</p>
-                        <div className="flex items-center justify-center gap-4 text-sm text-slate-500">
-                          <div className="flex items-center gap-2">
-                            <FaFilePdf className="text-red-500" />
-                            PDF
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <FaFileAlt className="text-blue-500" />
-                            TXT
-                          </div>
-                          <span>•</span>
-                          <span>Max 10MB</span>
-                        </div>
-                      </div>
-
-                      <button
-                        type="button"
-                        className="inline-flex items-center gap-3 bg-gradient-to-r from-[#7DD5DB] to-[#3B6597] text-white px-8 py-4 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-                      >
-                        <FaUpload />
-                        Choose File
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-8 border-2 border-green-200">
+                {resumeText && fileName && (
+                  <div className="mt-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border-2 border-green-200">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
-                          {resumeFile.type === "application/pdf" ? (
-                            <FaFilePdf className="text-white text-2xl" />
-                          ) : (
-                            <FaFileAlt className="text-white text-2xl" />
-                          )}
+                        <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
+                          <FaFilePdf className="text-white text-xl" />
                         </div>
                         <div>
-                          <h3 className="font-bold text-green-800 text-lg">{resumeFile.name}</h3>
-                          <p className="text-green-600 text-sm">{formatFileSize(resumeFile.size)}</p>
-                          {uploadProgress < 100 && (
-                            <div className="mt-2">
-                              <div className="w-48 h-2 bg-green-200 rounded-full overflow-hidden">
-                                <div
-                                  className="h-full bg-gradient-to-r from-green-500 to-emerald-500 transition-all duration-300"
-                                  style={{ width: `${uploadProgress}%` }}
-                                />
-                              </div>
-                              <p className="text-xs text-green-600 mt-1">Uploading... {uploadProgress}%</p>
-                            </div>
-                          )}
-                          {uploadProgress === 100 && (
-                            <div className="flex items-center gap-2 mt-2">
-                              <FaCheck className="text-green-500 text-sm" />
-                              <span className="text-green-600 text-sm font-medium">Ready for analysis</span>
-                            </div>
-                          )}
+                          <h3 className="font-bold text-green-800 text-lg">Resume uploaded successfully</h3>
+                          <p className="text-green-600 text-sm">File ID: {fileName}</p>
+                          <div className="flex items-center gap-2 mt-2">
+                            <FaCheck className="text-green-500 text-sm" />
+                            <span className="text-green-600 text-sm font-medium">Ready for analysis</span>
+                          </div>
                         </div>
                       </div>
                       <button
@@ -806,7 +652,7 @@ export default function ResumeReviewerForm({ onAnalysisComplete }: ResumeReviewe
         </div>
 
         {/* Analysis Preview */}
-        {currentStep === 2 && resumeFile && !isAnalyzing && (
+        {currentStep === 2 && resumeText && !isAnalyzing && (
           <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-2xl p-8 border border-purple-200">
             <div className="text-center">
               <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
