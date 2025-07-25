@@ -1,8 +1,15 @@
+
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 import '@tensorflow/tfjs-backend-webgl';
 
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+// Check if we're in browser environment and get SpeechRecognition safely
+const getSpeechRecognition = () => {
+  if (typeof window === 'undefined') return null;
+  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+};
+
+const SpeechRecognition = getSpeechRecognition();
 
 // Perbarui definisi hook untuk menerima languageCode sebagai parameter
 export function useInterviewEngine(languageCode: 'en' | 'id' = 'en') {
@@ -13,12 +20,12 @@ export function useInterviewEngine(languageCode: 'en' | 'id' = 'en') {
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  
-  const landmarkerRef = useRef<FaceLandmarker | null>(null); 
-  const recognitionRef = useRef<any>(null); 
+
+  const landmarkerRef = useRef<FaceLandmarker | null>(null);
+  const recognitionRef = useRef<any>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
-  
+
   const analysisFrameId = useRef<number | null>(null);
   const answerStartTime = useRef<number>(0);
   const isCleaningUp = useRef<boolean>(false);
@@ -34,13 +41,13 @@ export function useInterviewEngine(languageCode: 'en' | 'id' = 'en') {
     const originalConsoleError = console.error;
     const originalConsoleLog = console.log;
     const originalConsoleInfo = console.info;
-    
+
     const filterLogs = (originalFn: typeof console.error) => (...args: any[]) => {
       const message = args.join(' ');
       // Filter out MediaPipe/TensorFlow informational messages
       if (message.includes('TensorFlow Lite XNNPACK delegate') ||
-          message.includes('INFO: Created TensorFlow') ||
-          message.includes('MediaPipe')) {
+        message.includes('INFO: Created TensorFlow') ||
+        message.includes('MediaPipe')) {
         return; // Don't log these messages
       }
       originalFn.apply(console, args);
@@ -59,14 +66,32 @@ export function useInterviewEngine(languageCode: 'en' | 'id' = 'en') {
 
   // Perbarui useCallback dependencies untuk initialize dan tambahkan setelan lang
   const initialize = useCallback(async () => {
+    // Check if we're in browser environment
+    if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+      setEngineStatus('This feature is only available in the browser');
+      return;
+    }
+
+    // Check for HTTPS in production
+    if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+      setEngineStatus('Camera and microphone access requires HTTPS. Please access this page through a secure connection.');
+      return;
+    }
+
+    // Check if mediaDevices is available
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setEngineStatus('Camera and microphone access is not supported in this browser or context.');
+      return;
+    }
+
     // Set isCleaningUp ke false setiap kali inisialisasi dimulai
-    isCleaningUp.current = false; 
+    isCleaningUp.current = false;
     try {
       setEngineStatus('Loading vision models...');
       const vision = await FilesetResolver.forVisionTasks(
         "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
       );
-      
+
       const landmarker = await FaceLandmarker.createFromOptions(vision, {
         baseOptions: {
           modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task`,
@@ -78,23 +103,44 @@ export function useInterviewEngine(languageCode: 'en' | 'id' = 'en') {
       landmarkerRef.current = landmarker;
 
       setEngineStatus('Requesting camera and microphone access...');
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: {
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          facingMode: 'user'
+        }, 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        } 
+      });
       streamRef.current = stream;
-      
+
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         videoRef.current.onloadedmetadata = () => {
           videoRef.current?.play().catch(console.warn);
         };
       }
-      
-      const audioContext = new AudioContext();
-      audioContextRef.current = audioContext;
-      const source = audioContext.createMediaStreamSource(stream);
-      const analyser = audioContext.createAnalyser();
-      analyser.fftSize = 256;
-      source.connect(analyser);
-      analyserRef.current = analyser;
+
+      // Create AudioContext with better error handling
+      let audioContext: AudioContext;
+      try {
+        // Use webkitAudioContext as fallback for older browsers
+        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+        audioContext = new AudioContextClass();
+        audioContextRef.current = audioContext;
+        
+        const source = audioContext.createMediaStreamSource(stream);
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+        source.connect(analyser);
+        analyserRef.current = analyser;
+      } catch (audioError) {
+        console.warn('AudioContext creation failed:', audioError);
+        setEngineStatus('Audio analysis not available, but video will still work.');
+      }
 
       if (SpeechRecognition) {
         console.log("Speech Recognition API is supported by this browser.");
@@ -126,7 +172,7 @@ export function useInterviewEngine(languageCode: 'en' | 'id' = 'en') {
           // Hanya set isListening ke false jika bukan bagian dari proses cleanup manual
           // Ini mencegah flickering jika stopAnswering dipanggil
           if (!isCleaningUp.current) {
-             setIsListening(false);
+            setIsListening(false);
           }
         };
 
@@ -145,23 +191,52 @@ export function useInterviewEngine(languageCode: 'en' | 'id' = 'en') {
         console.error("Speech Recognition API is NOT supported by this browser.");
         setEngineStatus("Speech recognition is not supported by your browser. Please use Google Chrome or Microsoft Edge.");
       }
-      
+
       setIsEngineReady(true);
       setEngineStatus('Ready');
     } catch (error) {
       console.error("Failed to initialize interview engine:", error);
-      setEngineStatus('Error initializing engine. Please check permissions and console.');
+      
+      // Provide more specific error messages based on the error type
+      if (error instanceof Error) {
+        if (error.name === 'NotAllowedError') {
+          setEngineStatus('Camera/microphone access was denied. Please allow access and refresh the page.');
+        } else if (error.name === 'NotFoundError') {
+          setEngineStatus('No camera or microphone found. Please connect a camera and microphone.');
+        } else if (error.name === 'NotSupportedError') {
+          setEngineStatus('Camera/microphone access is not supported in this browser.');
+        } else if (error.name === 'NotReadableError') {
+          setEngineStatus('Camera/microphone is already in use by another application.');
+        } else if (error.name === 'OverconstrainedError') {
+          setEngineStatus('Camera constraints could not be satisfied. Trying with basic settings...');
+          // Retry with basic constraints
+          try {
+            const basicStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            streamRef.current = basicStream;
+            if (videoRef.current) {
+              videoRef.current.srcObject = basicStream;
+            }
+            setIsEngineReady(true);
+            setEngineStatus('Ready (basic quality)');
+          } catch (basicError) {
+            setEngineStatus('Failed to initialize camera even with basic settings.');
+          }
+        } else {
+          setEngineStatus(`Initialization error: ${error.message}`);
+        }
+      } else {
+        setEngineStatus('Unknown error occurred during initialization.');
+      }
     }
   }, [languageCode]); // Tambahkan languageCode sebagai dependency
 
   const analysisLoop = useCallback(() => {
     if (isCleaningUp.current) return;
-    
+
     if (
-      !landmarkerRef.current || 
-      !videoRef.current || 
-      !analyserRef.current || 
-      videoRef.current.paused || 
+      !landmarkerRef.current ||
+      !videoRef.current ||
+      videoRef.current.paused ||
       videoRef.current.ended ||
       videoRef.current.readyState < 3
     ) {
@@ -178,14 +253,17 @@ export function useInterviewEngine(languageCode: 'en' | 'id' = 'en') {
       }
       metrics.totalFrames++;
 
-      const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
-      analyserRef.current.getByteFrequencyData(dataArray);
-      let sum = 0;
-      for (const amplitude of dataArray) {
-        sum += amplitude * amplitude;
+      // Only analyze audio if analyser is available
+      if (analyserRef.current) {
+        const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
+        analyserRef.current.getByteFrequencyData(dataArray);
+        let sum = 0;
+        for (const amplitude of dataArray) {
+          sum += amplitude * amplitude;
+        }
+        metrics.volumeSum += Math.sqrt(sum / dataArray.length);
+        metrics.volumeCount++;
       }
-      metrics.volumeSum += Math.sqrt(sum / dataArray.length);
-      metrics.volumeCount++;
 
       if (!isCleaningUp.current) {
         analysisFrameId.current = requestAnimationFrame(analysisLoop);
@@ -200,15 +278,28 @@ export function useInterviewEngine(languageCode: 'en' | 'id' = 'en') {
     setTranscribedText('');
     Object.assign(metrics, { volumeSum: 0, volumeCount: 0, eyeContactFrames: 0, totalFrames: 0 });
     answerStartTime.current = Date.now();
-    recognitionRef.current?.start();
+    
+    // Start speech recognition if available
+    try {
+      recognitionRef.current?.start();
+    } catch (error) {
+      console.warn('Speech recognition failed to start:', error);
+      // Continue without speech recognition
+    }
+    
     analysisFrameId.current = requestAnimationFrame(analysisLoop);
     setIsListening(true);
   }, [isEngineReady, metrics, analysisLoop]);
 
   const stopAnswering = useCallback(() => {
     if (!isEngineReady) return;
+    
     // Hentikan pengenalan suara secara eksplisit di sini
-    recognitionRef.current?.stop(); 
+    try {
+      recognitionRef.current?.stop();
+    } catch (error) {
+      console.warn('Error stopping speech recognition:', error);
+    }
 
     if (analysisFrameId.current) {
       cancelAnimationFrame(analysisFrameId.current);
@@ -218,7 +309,7 @@ export function useInterviewEngine(languageCode: 'en' | 'id' = 'en') {
 
     const durationSeconds = (Date.now() - answerStartTime.current) / 1000;
     const wordCount = transcribedText.trim().split(/\s+/).filter(Boolean).length;
-    
+
     const finalAnalysis = {
       speechPace: durationSeconds > 1 ? (wordCount / durationSeconds) * 60 : 0,
       volumeLevel: metrics.volumeCount > 0 ? (metrics.volumeSum / metrics.volumeCount) / 128 - 1 : 0,
@@ -231,12 +322,12 @@ export function useInterviewEngine(languageCode: 'en' | 'id' = 'en') {
 
     return { transcribedAnswer: transcribedText.trim(), analysis: finalAnalysis };
   }, [isEngineReady, transcribedText, metrics]);
-  
+
   // Improved cleanup with proper error handling
   useEffect(() => {
     return () => {
       isCleaningUp.current = true; // Set flag untuk cleanup
-      
+
       try {
         // Stop media tracks
         streamRef.current?.getTracks().forEach(track => {
@@ -280,7 +371,7 @@ export function useInterviewEngine(languageCode: 'en' | 'id' = 'en') {
       try {
         // Gunakan recognitionRef.current?.abort() untuk menghentikan paksa
         // atau recognitionRef.current?.stop() jika Anda ingin event onend dipicu
-        recognitionRef.current?.abort(); 
+        recognitionRef.current?.abort();
       } catch (error) {
         console.warn("Error stopping speech recognition:", error);
       }

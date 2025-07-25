@@ -242,25 +242,7 @@ export default function Sidebar() {
           })}
         </div>
 
-        {/* Notifications Section - Only show when not collapsed */}
-        {!isCollapsed && notifications > 0 && (
-          <div className="px-6 mt-8">
-            <div className="bg-gradient-to-br from-orange-50 to-red-50 border border-orange-200 rounded-xl p-4">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-red-400 rounded-lg flex items-center justify-center">
-                  <FaBell className="text-white text-sm" />
-                </div>
-                <div>
-                  <div className="font-semibold text-orange-800 text-sm">Notifications</div>
-                  <div className="text-xs text-orange-600">{notifications} new updates</div>
-                </div>
-              </div>
-              <button className="text-xs text-orange-700 hover:text-orange-800 font-medium transition-colors">
-                View all →
-              </button>
-            </div>
-          </div>
-        )}
+        
       </nav>
 
       {/* Enhanced User Profile */}
@@ -275,11 +257,6 @@ export default function Sidebar() {
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#7DD5DB] to-[#3B6597] flex items-center justify-center shadow-lg">
                   <span className="text-white font-bold text-sm">{getUserInitials(session?.user?.email)}</span>
                 </div>
-                {notifications > 0 && (
-                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
-                    <span className="text-white text-xs font-bold">{notifications}</span>
-                  </div>
-                )}
               </div>
 
               {!isCollapsed && (
@@ -322,11 +299,7 @@ export default function Sidebar() {
                   <button className="user-menu-item">
                     <FaBell className="text-slate-500" />
                     <span>Notifications</span>
-                    {notifications > 0 && (
-                      <span className="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-                        {notifications}
-                      </span>
-                    )}
+                    
                   </button>
 
                   <button className="user-menu-item">

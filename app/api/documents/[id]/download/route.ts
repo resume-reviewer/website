@@ -13,8 +13,9 @@ const getSupabaseAuthedClient = (accessToken: string) => {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   const session = await getServerSession(authOptions)
   if (!session?.user?.id || !session.supabaseAccessToken) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -22,12 +23,12 @@ export async function GET(
 
   try {
     const supabase = getSupabaseAuthedClient(session.supabaseAccessToken)
-    
+
     // First, verify the document belongs to the user
     const { data: document, error: docError } = await supabase
       .from('documents')
       .select('file_path, file_name, user_id')
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('user_id', session.user.id)
       .single()
 
@@ -43,15 +44,15 @@ export async function GET(
 
     if (error) {
       console.error('Storage signed URL error:', error)
-      return NextResponse.json({ 
-        error: 'Could not generate download link', 
-        details: error.message 
+      return NextResponse.json({
+        error: 'Could not generate download link',
+        details: error.message
       }, { status: 500 })
     }
 
     if (!data?.signedUrl) {
-      return NextResponse.json({ 
-        error: 'No signed URL generated' 
+      return NextResponse.json({
+        error: 'No signed URL generated'
       }, { status: 500 })
     }
 
@@ -61,7 +62,7 @@ export async function GET(
     })
   } catch (error) {
     console.error('Download API error:', error)
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: 'Failed to generate download link',
       details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 })
