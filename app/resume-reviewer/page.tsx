@@ -142,7 +142,7 @@ export default function ResumeReviewerPage() {
                       </div>
                       <h3 className="text-2xl font-bold text-slate-800 mb-4 text-center">Upload Resume</h3>
                       <p className="text-slate-600 text-center leading-relaxed">
-                        Upload your resume in PDF or text format for comprehensive AI analysis
+                        Upload your resume in PDF format for comprehensive AI analysis and text extraction
                       </p>
                     </div>
                   </div>
