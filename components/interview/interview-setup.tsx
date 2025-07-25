@@ -48,17 +48,17 @@ const SAMPLE_JOBS = [
   {
     title: "Frontend Developer",
     company: "Tech Startup",
-    description: "React, TypeScript, modern web development",
+    description: "Creating seamless, user-friendly web experiences with React, TypeScript, and cutting-edge development tools.",
   },
   {
     title: "Product Manager",
     company: "SaaS Company",
-    description: "Product strategy, user research, roadmap planning",
+    description: "Driving product strategy through user research, roadmap planning, and data-informed decision making to build impactful digital solutions.",
   },
   {
     title: "Data Scientist",
     company: "AI Company",
-    description: "Machine learning, Python, data analysis",
+    description: "Leveraging machine learning, Python, and data analysis to extract insights, build predictive models, and enable intelligent applications.",
   },
 ]
 

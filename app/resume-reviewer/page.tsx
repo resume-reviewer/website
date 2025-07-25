@@ -30,19 +30,19 @@ export default function ResumeReviewerPage() {
       <main className="main-content">
         {/* Header */}
         <div className="bg-white/80 backdrop-blur-xl border-b border-slate-200/50 sticky top-0 z-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="px-8 py-6"> {/* Padding diselaraskan */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#7DD5DB] to-[#3B6597] flex items-center justify-center shadow-lg">
-                  <FaBrain className="text-white" />
-                </div>
-                <div>
-                  <h1 className="text-xl font-bold bg-gradient-to-r from-[#3B6597] to-[#7DD5DB] bg-clip-text text-transparent">
-                    AI Resume Reviewer
-                  </h1>
-                  <p className="text-sm text-slate-600">Optimize your resume with AI insights</p>
+              <div className="flex items-center gap-6"> {/* Gap yang konsisten */}
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#7DD5DB] to-[#3B6597] flex items-center justify-center shadow-lg">
+                    <FaFileAlt className="text-white text-xl" /> {/* Ukuran ikon diselaraskan */}
+                  </div>
+                  <div>
+                    <h1 className="text-2xl font-black bg-gradient-to-r from-[#3B6597] to-[#7DD5DB] bg-clip-text text-transparent">
+                      AI Resume Reviewer
+                    </h1>
+                    <p className="text-slate-600 font-medium">Optimize your resume with AI insights</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -52,7 +52,7 @@ export default function ResumeReviewerPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {!showResults ? (
           <>
-            {/* Hero Section */}
+            {/* Hero Section (tetap sama) */}
             <div className="text-center mb-16 relative">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 bg-[#7DD5DB]/10 rounded-full blur-3xl -z-10"></div>
               <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-6 py-3 rounded-full border border-slate-200 mb-8">
@@ -73,7 +73,7 @@ export default function ResumeReviewerPage() {
                 your resume and provides actionable insights to improve your chances.
               </p>
 
-              {/* Stats */}
+              {/* Stats (tetap sama) */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto mb-16">
                 <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-slate-200 hover:shadow-lg transition-all duration-300 hover:-translate-y-2">
                   <div className="w-12 h-12 bg-gradient-to-br from-[#7DD5DB] to-[#3B6597] rounded-xl flex items-center justify-center mx-auto mb-4">
@@ -101,7 +101,7 @@ export default function ResumeReviewerPage() {
               </div>
             </div>
 
-            {/* How It Works */}
+            {/* How It Works (tetap sama) */}
             <div className="mb-16">
               <div className="text-center mb-12">
                 <h2 className="text-3xl md:text-4xl font-black text-slate-800 mb-4">
@@ -165,7 +165,7 @@ export default function ResumeReviewerPage() {
               </div>
             </div>
 
-            {/* Form */}
+            {/* Form (tetap sama) */}
             <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
               <div className="bg-gradient-to-r from-[#7DD5DB] to-[#3B6597] h-2"></div>
               <ResumeReviewerForm onAnalysisComplete={handleAnalysisComplete} />

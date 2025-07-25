@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
-import { FaFilePdf, FaDownload, FaSpinner } from 'react-icons/fa';
+import { FaFilePdf, FaDownload, FaSpinner, FaFolder } from 'react-icons/fa';
 import { format } from 'date-fns';
 import { UserDocument } from '@/lib/types-and-utils';
 import { supabase } from '@/lib/supabase';
@@ -50,7 +50,7 @@ export default function DocumentsPage() {
     setIsLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/documents'); 
+      const res = await fetch('/api/documents');
       if (!res.ok) throw new Error('Failed to fetch documents');
       const data = await res.json();
       setDocuments(data);
@@ -66,12 +66,28 @@ export default function DocumentsPage() {
   }, [fetchData]);
 
   return (
-    <div className='flex'>
+    <div className='flex min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50 to-blue-50'>
       <Sidebar />
       <main className="main-content">
-        <div className="header">
-          <h1 className="header-title">Document Library</h1>
-          <p className="header-subtitle">Manage all your uploaded documents here.</p>
+        {/* Header Baru */}
+        <div className="bg-white/80 backdrop-blur-xl border-b border-slate-200/50 sticky top-0 z-50">
+          <div className="px-8 py-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#7DD5DB] to-[#3B6597] flex items-center justify-center shadow-lg">
+                    <FaFolder className="text-white text-xl" />
+                  </div>
+                  <div>
+                    <h1 className="text-2xl font-black bg-gradient-to-r from-[#3B6597] to-[#7DD5DB] bg-clip-text text-transparent">
+                      Document Library
+                    </h1>
+                    <p className="text-slate-600 font-medium">Manage all your uploaded documents here</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="p-8">

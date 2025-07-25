@@ -1,5 +1,3 @@
-// File: /app/api/jobs/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
@@ -56,9 +54,10 @@ export async function POST(request: NextRequest) {
 
     const jobData = await request.json();
 
-    const { 
-      job_title, company_name, location, job_url, 
-      job_description, notes, application_deadline 
+    const {
+      job_title, company_name, location, job_url,
+      job_description, notes, application_deadline,
+      priority 
     } = jobData;
 
     if (!job_title || !company_name) {
@@ -69,14 +68,15 @@ export async function POST(request: NextRequest) {
       .from('jobs')
       .insert({
         user_id: session.user.id,
-        job_title: job_title, 
-        company_name: company_name, 
+        job_title: job_title,
+        company_name: company_name,
         location: location,
         job_url: job_url,
         job_description: job_description,
         notes: notes,
         application_deadline: application_deadline || null,
         status: 'Saved',
+        priority: priority || 'medium',
       })
       .select()
       .single();

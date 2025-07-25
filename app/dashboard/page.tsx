@@ -234,7 +234,7 @@ export default function JobTrackerPage() {
                     <FaThLarge className="text-white text-xl" />
                   </div>
                   <div>
-                    <h1 className="text-3xl font-black bg-gradient-to-r from-[#3B6597] to-[#7DD5DB] bg-clip-text text-transparent">
+                    <h1 className="text-2xl font-black bg-gradient-to-r from-[#3B6597] to-[#7DD5DB] bg-clip-text text-transparent"> {/* Changed text-3xl to text-2xl */}
                       Job Tracker
                     </h1>
                     <p className="text-slate-600 font-medium">Track and manage your job search progress</p>

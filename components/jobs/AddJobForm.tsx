@@ -1,3 +1,4 @@
+// File: /components/jobs/AddJobForm.tsx
 "use client"
 
 import type React from "react"
@@ -22,6 +23,7 @@ import {
 } from "react-icons/fa"
 import type { JobApplication } from "@/lib/types-and-utils"
 
+// Tipe untuk dokumen yang akan diunggah dalam flow ini
 interface DocumentForUpload {
   id: string
   type: "resume" | "cover-letter" | "diploma" | "portfolio" | "references"
