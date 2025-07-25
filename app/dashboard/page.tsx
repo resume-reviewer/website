@@ -167,9 +167,7 @@ export default function JobTrackerPage() {
     <div className="flex min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50 to-blue-50">
       <Sidebar />
 
-      {/* Main Content */}
       <main className="main-content">
-        {/* Enhanced Header */}
         <div className="bg-white/80 backdrop-blur-xl border-b border-slate-200/50 sticky top-0 z-50">
           <div className="px-8 py-6">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
@@ -180,7 +178,7 @@ export default function JobTrackerPage() {
                   </div>
                   <div>
                     <h1 className="text-3xl font-black bg-gradient-to-r from-[#3B6597] to-[#7DD5DB] bg-clip-text text-transparent">
-                      Job Applications
+                      Job Tracker
                     </h1>
                     <p className="text-slate-600 font-medium">Track and manage your job search progress</p>
                   </div>
@@ -188,7 +186,6 @@ export default function JobTrackerPage() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
-                {/* Search */}
                 <div className="relative">
                   <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
@@ -200,7 +197,6 @@ export default function JobTrackerPage() {
                   />
                 </div>
 
-                {/* Add Job Button */}
                 <Link
                   href="/jobs/add"
                   className="flex items-center gap-3 bg-gradient-to-r from-[#7DD5DB] to-[#3B6597] text-white px-6 py-3 rounded-xl font-bold shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl group whitespace-nowrap"
@@ -213,7 +209,6 @@ export default function JobTrackerPage() {
           </div>
         </div>
 
-        {/* Priority Filters */}
         <div className="px-8 py-6 bg-white/40 backdrop-blur-sm border-b border-slate-200/50">
           <div className="flex flex-wrap gap-3">
             {priorityFilters.map((filter) => (
@@ -236,10 +231,8 @@ export default function JobTrackerPage() {
           </div>
         </div>
 
-        {/* Enhanced Stats Section */}
         <div className="px-8 py-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-6 mb-8">
-            {/* Main Stats */}
             {KANBAN_COLUMNS.map((column) => (
               <div
                 key={column.title}
@@ -259,7 +252,6 @@ export default function JobTrackerPage() {
               </div>
             ))}
 
-            {/* Additional Stats */}
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-slate-200 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#7DD5DB] to-[#3B6597] flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -285,7 +277,6 @@ export default function JobTrackerPage() {
             </div>
           </div>
 
-          {/* Quick Actions */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <Link
               href="/jobs/add"
@@ -333,7 +324,6 @@ export default function JobTrackerPage() {
             </Link>
           </div>
 
-          {/* Enhanced Kanban Board */}
           {isLoading ? (
             <div className="flex items-center justify-center py-20">
               <div className="text-center">

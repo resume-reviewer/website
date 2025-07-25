@@ -21,7 +21,6 @@ import {
   FaLanguage,
 } from "react-icons/fa"
 
-// Tipe untuk konteks wawancara, yang merupakan bagian dari JobApplication
 type InterviewContext = Pick<JobApplication, "job_title" | "company_name" | "job_description" | "language">
 
 interface InterviewSetupProps {
@@ -75,7 +74,6 @@ export default function InterviewSetup({ onSetupComplete }: InterviewSetupProps)
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
   const [showSamples, setShowSamples] = useState(false)
 
-  // Cek localStorage untuk data dari Job Tracker
   useEffect(() => {
     const savedContext = localStorage.getItem("interview_job_context")
     if (savedContext) {
@@ -93,7 +91,6 @@ export default function InterviewSetup({ onSetupComplete }: InterviewSetupProps)
     const { name, value } = e.target
     setContext((prev) => ({ ...prev, [name]: value }))
 
-    // Clear validation error when user starts typing
     if (validationErrors[name]) {
       setValidationErrors((prev) => ({ ...prev, [name]: "" }))
     }
@@ -127,7 +124,6 @@ export default function InterviewSetup({ onSetupComplete }: InterviewSetupProps)
     setIsValidating(true)
     setError("")
 
-    // Simulate validation delay
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
     setIsValidating(false)

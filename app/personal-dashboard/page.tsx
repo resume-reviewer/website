@@ -32,7 +32,6 @@ import {
 } from "react-icons/fa"
 import Sidebar from "@/components/layout/Sidebar"
 
-// Hardcoded data untuk demo
 const DASHBOARD_DATA = {
   user: {
     name: "Maul Johnson",

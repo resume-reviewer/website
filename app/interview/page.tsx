@@ -19,7 +19,6 @@ import {
 } from "react-icons/fa"
 import Sidebar from "@/components/layout/Sidebar"
 
-// Definisikan tipe konteks di sini atau impor
 type InterviewContext = Pick<JobApplication, "job_title" | "company_name" | "job_description" | "language">
 
 const InterviewSetup = dynamic(() => import("@/components/interview/interview-setup"), { ssr: false })
@@ -88,21 +87,11 @@ export default function MockInterviewPage() {
     <div className="flex min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50 to-blue-50">
       <Sidebar />
 
-      {/* Main Content */}
       <main className="main-content">
-        {/* Enhanced Header */}
         <div className="bg-white/80 backdrop-blur-xl border-b border-slate-200/50 sticky top-0 z-50">
           <div className="px-8 py-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-6">
-                <Link
-                  href="/dashboard"
-                  className="flex items-center gap-3 px-4 py-2 bg-white/60 backdrop-blur-sm text-slate-600 rounded-xl border border-slate-200 hover:bg-white hover:text-[#3B6597] hover:border-[#7DD5DB] transition-all duration-300 hover:-translate-y-1 hover:shadow-lg group"
-                >
-                  <FaArrowLeft className="group-hover:-translate-x-1 transition-transform" />
-                  <span className="font-semibold">Back to Dashboard</span>
-                </Link>
-
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#7DD5DB] to-[#3B6597] flex items-center justify-center shadow-lg">
                     <FaMicrophone className="text-white text-xl" />
@@ -116,7 +105,6 @@ export default function MockInterviewPage() {
                 </div>
               </div>
 
-              {/* Stage Indicator */}
               <div className="hidden md:flex items-center gap-4">
                 <div className="flex items-center gap-3 bg-white/60 backdrop-blur-sm px-4 py-2 rounded-xl border border-slate-200">
                   <div
@@ -133,11 +121,9 @@ export default function MockInterviewPage() {
           </div>
         </div>
 
-        {/* Content Area */}
         <div className="p-8">
           {stage === "setup" && (
             <div className="space-y-12">
-              {/* Hero Section */}
               <div className="text-center relative">
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 bg-[#7DD5DB]/10 rounded-full blur-3xl -z-10"></div>
 
@@ -159,7 +145,6 @@ export default function MockInterviewPage() {
                   body language, and speaking confidence.
                 </p>
 
-                {/* Quick Start Button */}
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
                   <button
                     onClick={() => document.getElementById("interview-setup")?.scrollIntoView({ behavior: "smooth" })}
@@ -175,7 +160,6 @@ export default function MockInterviewPage() {
                   </div>
                 </div>
 
-                {/* Success Stats */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
                   {SUCCESS_STATS.map((stat, index) => (
                     <div
@@ -190,7 +174,6 @@ export default function MockInterviewPage() {
                 </div>
               </div>
 
-              {/* Features Section */}
               <div className="bg-white/60 backdrop-blur-sm rounded-3xl border border-slate-200 p-8 md:p-12 shadow-xl">
                 <div className="text-center mb-12">
                   <h2 className="text-3xl md:text-4xl font-black text-slate-800 mb-4">
@@ -225,7 +208,6 @@ export default function MockInterviewPage() {
                 </div>
               </div>
 
-              {/* How It Works */}
               <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-3xl border border-purple-200 p-8 md:p-12">
                 <div className="text-center mb-12">
                   <h2 className="text-3xl md:text-4xl font-black text-slate-800 mb-4">
@@ -272,7 +254,6 @@ export default function MockInterviewPage() {
                           <p className="text-slate-600 text-center leading-relaxed">{item.description}</p>
                         </div>
                       </div>
-                      {/* Connector Line */}
                       {index < 2 && (
                         <div className="hidden md:block absolute top-1/2 -right-4 w-8 h-0.5 bg-gradient-to-r from-purple-300 to-blue-300 z-10"></div>
                       )}
@@ -281,7 +262,6 @@ export default function MockInterviewPage() {
                 </div>
               </div>
 
-              {/* Setup Component */}
               <div id="interview-setup">
                 <InterviewSetup onSetupComplete={handleSetupComplete} />
               </div>

@@ -5,15 +5,160 @@ body {
 }
 
 /* Sidebar & Main Layout */
-.sidebar { width: 280px; height: 100vh; background: white; position: fixed; left: 0; top: 0; box-shadow: 2px 0 10px rgba(0,0,0,0.05); z-index: 1000; display: flex; flex-direction: column; }
-.sidebar-header { padding: 2rem 1.5rem; border-bottom: 1px solid #e2e8f0; }
-.logo { font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; gap: 8px; }
-.sidebar-nav { padding: 1rem 0; flex-grow: 1; }
-.nav-item { display: flex; align-items: center; gap: 12px; padding: 1rem 1.5rem; color: #64748b; text-decoration: none; transition: all 0.3s ease; border-left: 3px solid transparent; }
-.nav-item:hover, .nav-item.active { background: rgba(102, 126, 234, 0.05); color: #667eea; border-left-color: #667eea; }
-.user-profile { padding: 1.5rem; border-top: 1px solid #e2e8f0; display: flex; align-items: center; gap: 12px; }
-.user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; }
-.main-content { margin-left: 280px; width: calc(100% - 280px); }
+.sidebar {
+  width: 280px;
+  height: 100vh;
+  background: white;
+  position: fixed;
+  left: 0;
+  top: 0;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar.collapsed {
+  width: 80px; /* Lebar saat collapsed */
+}
+.sidebar-header {
+  padding: 2rem 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+.sidebar.collapsed .sidebar-header {
+  padding: 1.5rem 1rem;
+}
+.logo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sidebar-nav {
+  padding: 1rem 0;
+  flex-grow: 1;
+  /* Tambahkan ini untuk scroll saat konten melebihi tinggi */
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 1rem 1.5rem;
+  color: #64748b;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border-left: 3px solid transparent;
+  white-space: nowrap; /* Pastikan teks tidak melompat baris */
+}
+.sidebar.collapsed .nav-item {
+  justify-content: center; /* Pusatkan ikon saat collapsed */
+  padding: 1rem;
+}
+.sidebar.collapsed .nav-item .nav-label,
+.sidebar.collapsed .nav-item .nav-description,
+.sidebar.collapsed .nav-item .nav-badge {
+  display: none; /* Sembunyikan teks saat collapsed */
+}
+.nav-item:hover,
+.nav-item.active {
+  background: rgba(102, 126, 234, 0.05);
+  color: #667eea;
+  border-left-color: #667eea;
+}
+.user-profile-container {
+  padding: 1rem;
+  border-top: 1px solid #e2e8f0;
+  margin-top: auto; /* Dorong ke bawah */
+}
+.user-profile-button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  transition: all 0.3s ease;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+.user-profile-button:hover {
+  background-color: #f1f5f9;
+}
+
+.sidebar.collapsed .user-profile-button {
+  justify-content: center;
+  padding: 0.75rem;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 0.75rem; /* Ubah ke rounded-xl agar konsisten */
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.user-dropdown {
+  width: 100%; /* Pastikan dropdown mengisi lebar container */
+  transform-origin: bottom; /* Animasi dari bawah */
+  bottom: calc(100% + 8px); /* Posisi di atas tombol profile, 8px gap */
+  left: 0;
+  right: 0;
+  opacity: 1; /* Default visible saat showUserMenu true */
+  pointer-events: auto; /* Bisa diklik */
+}
+/* Jika Anda ingin animasi fade-in/out */
+.user-dropdown {
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+}
+.user-profile-container .user-dropdown {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+
+.user-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  color: #475569;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+.user-menu-item:hover {
+  background-color: #f1f5f9;
+}
+
+.main-content {
+  margin-left: 280px;
+  width: calc(100% - 280px);
+}
+.sidebar.collapsed + .main-content {
+  margin-left: 80px;
+  width: calc(100% - 80px);
+}
+
 .header { background: white; padding: 1.5rem 2rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; gap: 2rem; }
 .header-left { flex: 1; }
 .header-title { font-size: 1.8rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem; }

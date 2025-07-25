@@ -17,37 +17,41 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
-  async function handleLogin(e: React.FormEvent) {
-    e.preventDefault()
-    setIsLoading(true)
-    setError("")
+   async function handleLogin(e: React.FormEvent) {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
     const res = await signIn("credentials", {
       email,
       password,
       redirect: false,
       callbackUrl: "/dashboard",
-    })
+    });
 
     if (res?.error) {
-      setError(res.error)
+      if (res.error.includes("Email not confirmed") || res.error.includes("Email link is not valid")) {
+        setError("Your email address has not been confirmed. Please check your inbox for a confirmation link.");
+      } else if (res.error.includes("Invalid login credentials")) {
+        setError("Invalid email or password. Please try again.");
+      } else {
+        setError(res.error);
+      }
     } else if (res?.ok) {
-      router.push(res.url || "/dashboard")
+      router.push(res.url || "/dashboard");
     } else {
-      setError("Login failed. Please check your credentials.")
+      setError("Login failed. Please check your credentials.");
     }
 
-    setIsLoading(false)
+    setIsLoading(false);
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50 to-blue-50 flex flex-col items-center justify-center font-sans relative overflow-hidden">
-      {/* Background Elements */}
       <div className="absolute top-20 left-10 w-72 h-72 bg-[#7DD5DB]/20 rounded-full blur-3xl"></div>
       <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#3B6597]/20 rounded-full blur-3xl"></div>
 
       <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-12 w-full max-w-md border border-white/20 relative z-10">
-        {/* Logo */}
         <Image
           src="/media/logo.png"
           alt="CareerPilot Logo"
@@ -56,13 +60,11 @@ export default function LoginPage() {
           className="object-contain"
         />
 
-        {/* Header */}
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-slate-800 mb-3">Welcome Back</h2>
           <p className="text-slate-600">Sign in to continue your career journey</p>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleLogin} className="space-y-6">
           <div className="space-y-2">
             <label className="block text-sm font-semibold text-slate-700">Email Address</label>
@@ -107,7 +109,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Error Message */}
+       {/* Error Message */}
         {error && (
           <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl">
             <p className="text-sm text-red-600 text-center font-medium">{error}</p>
@@ -125,5 +127,5 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

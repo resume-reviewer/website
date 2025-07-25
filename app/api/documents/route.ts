@@ -1,5 +1,3 @@
-// File: /app/api/documents/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
@@ -13,7 +11,6 @@ const getSupabaseAuthedClient = (accessToken: string) => {
   );
 };
 
-// GET: Mengambil daftar dokumen pengguna
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.supabaseAccessToken) {
@@ -60,13 +57,12 @@ export async function POST(request: NextRequest) {
 
     if (uploadError) throw uploadError;
     
-    // Siapkan data untuk dimasukkan ke database
     const documentData: {
         user_id: string;
         file_name: string;
         file_path: string;
         document_type: string;
-        job_id?: string; // Kolom job_id opsional
+        job_id?: string; 
     } = {
         user_id: session.user.id,
         file_name: file.name,
@@ -74,14 +70,13 @@ export async function POST(request: NextRequest) {
         document_type: documentType,
     };
 
-    // Tambahkan job_id jika ada
     if (jobId) {
         documentData.job_id = jobId;
     }
 
     const { data: dbData, error: dbError } = await supabase
       .from('documents')
-      .insert(documentData) // <-- Gunakan objek data yang sudah disiapkan
+      .insert(documentData)
       .select()
       .single();
 

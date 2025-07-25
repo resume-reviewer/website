@@ -1,5 +1,3 @@
-// File: /app/api/jobs-with-documents/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
@@ -19,7 +17,6 @@ export async function GET(request: NextRequest) {
       { global: { headers: { 'Authorization': `Bearer ${session.supabaseAccessToken}` } } }
     );
 
-    // 1. Ambil semua pekerjaan pengguna
     const { data: jobs, error: jobsError } = await supabase
       .from('jobs')
       .select('*')
@@ -27,20 +24,17 @@ export async function GET(request: NextRequest) {
 
     if (jobsError) throw jobsError;
 
-    // 2. Ambil semua dokumen pengguna
     const { data: documents, error: docsError } = await supabase
       .from('documents')
       .select('*');
 
     if (docsError) throw docsError;
     
-    // 3. Gabungkan data di server
     const jobsWithDocuments = jobs.map(job => ({
       ...job,
       documents: documents.filter(doc => doc.job_id === job.id),
     }));
 
-    // 4. Pisahkan dokumen yang tidak terikat dengan pekerjaan apa pun
     const unassociatedDocuments = documents.filter(doc => !doc.job_id);
 
     return NextResponse.json({ jobsWithDocuments, unassociatedDocuments });

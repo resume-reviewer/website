@@ -13,13 +13,11 @@ export function useInterviewEngine() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   
-  // Ref untuk model dan API
   const landmarkerRef = useRef<FaceLandmarker | null>(null); 
   const recognitionRef = useRef<any>(null); 
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   
-  // Ref untuk proses analisis
   const analysisFrameId = useRef<number | null>(null);
   const answerStartTime = useRef<number>(0);
   const metrics = useRef({
@@ -29,7 +27,6 @@ export function useInterviewEngine() {
     totalFrames: 0,
   }).current;
 
-  // Inisialisasi semua engine
   const initialize = useCallback(async () => {
     try {
       setEngineStatus('Loading vision models...');
@@ -47,7 +44,6 @@ export function useInterviewEngine() {
       landmarkerRef.current = landmarker;
 
       setEngineStatus('Requesting camera and microphone access...');
-      // Setup Media Stream (Video & Audio)
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       streamRef.current = stream;
       if (videoRef.current) {
@@ -57,7 +53,6 @@ export function useInterviewEngine() {
         };
       }
       
-      // Setup Web Audio API
       const audioContext = new AudioContext();
       audioContextRef.current = audioContext;
       const source = audioContext.createMediaStreamSource(stream);
@@ -72,7 +67,6 @@ export function useInterviewEngine() {
         recog.continuous = true;
         recog.interimResults = true;
 
-        // Event handler onresult
         recog.onresult = (event: SpeechRecognitionEvent) => {
           let finalTranscript = '';
           for (let i = event.resultIndex; i < event.results.length; ++i) {

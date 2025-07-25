@@ -1,10 +1,7 @@
-// File: /app/api/scrape-job/route.ts
-
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 import * as cheerio from 'cheerio';
 
-// Inisialisasi Google AI
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY!);
 
 export async function POST(request: NextRequest) {
@@ -14,23 +11,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'URL is required' }, { status: 400 });
     }
 
-    // 1. Fetch HTML dari URL
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`Failed to fetch URL: ${response.statusText}`);
     }
     const html = await response.text();
 
-    // 2. Ekstrak teks utama menggunakan Cheerio
     const $ = cheerio.load(html);
-    // Hapus elemen yang tidak relevan seperti script dan style
     $('script, style, nav, footer, header').remove();
     const mainText = $('body').text().replace(/\s\s+/g, ' ').trim();
     
-    // Potong teks agar tidak terlalu panjang untuk prompt
     const truncatedText = mainText.substring(0, 8000);
 
-    // 3. Gunakan AI untuk mengekstrak informasi
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     const prompt = `
       Based on the following text scraped from a job posting page, please extract the key information.
@@ -54,7 +46,6 @@ export async function POST(request: NextRequest) {
     const aiResponse = await result.response;
     let extractedText = aiResponse.text();
 
-    // 4. Bersihkan dan parse respons JSON dari AI
     extractedText = extractedText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
     const extractedData = JSON.parse(extractedText);
 

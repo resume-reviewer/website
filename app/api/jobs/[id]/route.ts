@@ -3,7 +3,6 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { createClient } from '@supabase/supabase-js';
 
-// Helper function untuk Supabase client
 const getSupabaseAuthedClient = (accessToken: string) => {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -12,10 +11,9 @@ const getSupabaseAuthedClient = (accessToken: string) => {
   );
 };
 
-// Handler untuk metode PATCH (Update)
 export async function PATCH(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> } // Updated to handle Promise
+  context: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id || !session.supabaseAccessToken) {

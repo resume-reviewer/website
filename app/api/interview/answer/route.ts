@@ -57,7 +57,6 @@ export async function POST(request: NextRequest) {
     console.log(text);
     console.log("--------------------------------");
 
-    // Bersihkan respons untuk mengekstrak JSON
     text = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
     
     try {

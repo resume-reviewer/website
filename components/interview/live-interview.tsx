@@ -50,7 +50,6 @@ export default function LiveInterview({ interviewContext, onInterviewComplete }:
     stopAnswering,
   } = useInterviewEngine()
 
-  // Fungsi untuk memetakan properti dari snake_case ke camelCase
   const mapContextToApiPayload = (context: InterviewContext) => ({
     jobTitle: context.job_title,
     jobDescription: context.job_description,

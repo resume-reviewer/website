@@ -1,15 +1,12 @@
-// File: /app/documents/page.tsx (Versi Disederhanakan Tanpa Hapus)
-
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import Sidebar from '@/components/layout/Sidebar'; // Asumsi Anda punya komponen ini
+import Sidebar from '@/components/layout/Sidebar';
 import { FaFilePdf, FaDownload, FaSpinner } from 'react-icons/fa';
 import { format } from 'date-fns';
 import { UserDocument } from '@/lib/types-and-utils';
 import { supabase } from '@/lib/supabase';
 
-// Komponen untuk mengunduh dokumen
 const DocumentDownloader = ({ doc }: { doc: UserDocument }) => {
   const handleDownload = async () => {
     const { data } = supabase.storage.from('userdocuments').getPublicUrl(doc.file_path);
@@ -28,7 +25,6 @@ const DocumentDownloader = ({ doc }: { doc: UserDocument }) => {
 };
 
 
-// Komponen Item Dokumen
 const DocumentItem = ({ doc }: { doc: UserDocument }) => (
   <li className="py-3 flex items-center justify-between hover:bg-gray-50 px-2 rounded-md transition-colors">
     <div className="flex items-center gap-4">
@@ -54,7 +50,6 @@ export default function DocumentsPage() {
     setIsLoading(true);
     setError('');
     try {
-      // Gunakan API yang sudah ada dan berfungsi
       const res = await fetch('/api/documents'); 
       if (!res.ok) throw new Error('Failed to fetch documents');
       const data = await res.json();

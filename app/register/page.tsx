@@ -14,6 +14,7 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [message, setMessage] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [messageType, setMessageType] = useState<"success" | "error" | "">(""); 
 
   const passwordRequirements = [
     { text: "At least 8 characters", met: password.length >= 8 },
@@ -23,41 +24,45 @@ export default function RegisterPage() {
   ]
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
+    e.preventDefault();
 
     if (password !== confirmPassword) {
-      setMessage("Passwords do not match")
-      return
+      setMessage("Passwords do not match");
+      setMessageType("error"); 
+      return;
     }
 
-    setIsLoading(true)
-    setMessage("")
+    setIsLoading(true);
+    setMessage("");
+    setMessageType("");
 
     const res = await fetch("/api/auth/register", {
       method: "POST",
       body: JSON.stringify({ email, password }),
       headers: { "Content-Type": "application/json" },
-    })
+    });
 
-    const data = await res.json()
+    const data = await res.json();
 
     if (res.ok) {
-      setMessage("Registration successful! Please login to continue.")
+      setMessage(
+        "Registration successful! Please check your email to confirm your account and then log in."
+      );
+      setMessageType("success"); 
     } else {
-      setMessage(data.error || "Registration failed. Please try again.")
+      setMessage(data.error || "Registration failed. Please try again.");
+      setMessageType("error"); 
     }
 
-    setIsLoading(false)
+    setIsLoading(false);
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50 to-blue-50 flex flex-col items-center justify-center font-sans relative overflow-hidden">
-      {/* Background Elements */}
       <div className="absolute top-20 left-10 w-72 h-72 bg-[#7DD5DB]/20 rounded-full blur-3xl"></div>
       <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#3B6597]/20 rounded-full blur-3xl"></div>
 
       <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-12 w-full max-w-md border border-white/20 relative z-10">
-        {/* Logo */}
         <Image
           src="/media/logo.png"
           alt="CareerPilot Logo"
@@ -66,13 +71,11 @@ export default function RegisterPage() {
           className="object-contain"
         />
 
-        {/* Header */}
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-slate-800 mb-3">Create Account</h2>
           <p className="text-slate-600">Start your career transformation journey</p>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <label className="block text-sm font-semibold text-slate-700">Email Address</label>
@@ -106,7 +109,6 @@ export default function RegisterPage() {
               </button>
             </div>
 
-            {/* Password Requirements */}
             {password && (
               <div className="mt-3 space-y-2">
                 {passwordRequirements.map((req, index) => (
@@ -153,13 +155,19 @@ export default function RegisterPage() {
           </button>
         </form>
 
-        {/* Message */}
+       {/* Message */}
         {message && (
           <div
-            className={`mt-6 p-4 rounded-xl ${message.includes("successful") ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"}`}
+            className={`mt-6 p-4 rounded-xl ${
+              messageType === "success"
+                ? "bg-green-50 border border-green-200"
+                : "bg-red-50 border border-red-200"
+            }`}
           >
             <p
-              className={`text-sm text-center font-medium ${message.includes("successful") ? "text-green-600" : "text-red-600"}`}
+              className={`text-sm text-center font-medium ${
+                messageType === "success" ? "text-green-600" : "text-red-600"
+              }`}
             >
               {message}
             </p>
@@ -177,5 +185,5 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

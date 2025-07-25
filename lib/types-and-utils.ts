@@ -25,7 +25,6 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
-// Validation utilities
 export const validateJobDetails = (jobDetails: JobDetails): string | null => {
   const required = [
     { field: 'jobTitle', label: 'Job Title' },
@@ -64,7 +63,6 @@ export const validateFile = (file: File): string | null => {
   return null;
 };
 
-// Formatting utilities
 export const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes';
   const k = 1024;
@@ -87,11 +85,10 @@ export const getScoreLabel = (score: number): string => {
   return 'Needs Improvement';
 };
 
-// Text processing utilities
 export const cleanText = (text: string): string => {
   return text
-    .replace(/\s+/g, ' ') // Replace multiple spaces with single space
-    .replace(/\n\s*\n/g, '\n') // Replace multiple newlines with single newline
+    .replace(/\s+/g, ' ') 
+    .replace(/\n\s*\n/g, '\n')
     .trim();
 };
 
@@ -104,34 +101,30 @@ export interface InterviewQuestion {
   question: string;
 }
 
-// Metrik analisis real-time dari klien
 export interface RealTimeAnalysis {
-  speechPace: number; // Kata per menit
-  volumeLevel: number; // Nilai normalisasi 0-1
-  eyeContactPercentage: number; // Persentase waktu mata terdeteksi dan melihat ke depan
-  headMovement: number; // Metrik seberapa banyak kepala bergerak
+  speechPace: number;
+  volumeLevel: number; 
+  eyeContactPercentage: number; 
+  headMovement: number; 
 }
 
-// Payload yang dikirim ke API untuk setiap jawaban
 export interface AnswerPayload {
   question: string;
   transcribedAnswer: string;
   analysis: RealTimeAnalysis;
 }
 
-// Umpan balik dari AI untuk setiap jawaban
 export interface AnswerFeedback {
   feedback: string;
   nextQuestion: string;
 }
 
-// Ringkasan akhir wawancara yang komprehensif
 export interface InterviewSummary {
   overallFeedback: string;
   strengths: string[];
   areasForImprovement: {
-    content: string[]; // Umpan balik pada isi jawaban
-    delivery: string[]; // Umpan balik pada nada & bahasa tubuh
+    content: string[]; 
+    delivery: string[];
   };
   performanceMetrics: {
     question: string;
@@ -154,12 +147,10 @@ export interface JobApplication {
   status: 'Saved' | 'Applied' | 'Interview' | 'Offer' | 'Rejected'; 
   created_at?: string;
   language?: 'en' | 'id';
-  // --- TAMBAHAN BARU DARI FORM ---
   priority?: 'high' | 'medium' | 'low';
   salary?: string;
 }
 
-// Tambahkan tipe untuk dokumen, yang merefleksikan tabel Supabase Anda
 export interface UserDocument {
   id: string;
   user_id: string;

@@ -1,4 +1,3 @@
-// File: /components/layout/Sidebar.tsx
 "use client"
 
 import Link from "next/link"
@@ -22,14 +21,15 @@ import {
   FaSun,
   FaExpand,
   FaCompress,
+  FaChartLine, 
 } from "react-icons/fa"
 
 const NAV_ITEMS = [
   {
-    href: "/dashboard",
+    href: "/dashboard", 
     icon: <FaThLarge />,
-    label: "Dashboard",
-    description: "Overview & analytics",
+    label: "Tracker", 
+    description: "Track job applications",
     badge: null,
   },
   {
@@ -60,7 +60,15 @@ const NAV_ITEMS = [
     description: "Practice with AI",
     badge: "AI",
   },
+  {
+    href: "/personal-dashboard", 
+    icon: <FaChartLine />, 
+    label: "Personal Dashboard",
+    description: "Overview & analytics",
+    badge: null,
+  },
 ]
+
 
 const QUICK_STATS = [
   { label: "Active Applications", value: "1", color: "text-blue-600" },

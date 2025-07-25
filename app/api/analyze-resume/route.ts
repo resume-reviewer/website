@@ -1,12 +1,10 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 
-// Initialize Google AI
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY!);
 
 export async function POST(request: NextRequest) {
   try {
-    // Check if Google AI API key is available
     if (!process.env.GOOGLE_AI_API_KEY) {
       console.error('Google AI API key is not configured');
       return NextResponse.json(

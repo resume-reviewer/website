@@ -18,7 +18,6 @@ export async function POST(request: NextRequest) {
       `Q: ${h.question}\nAnswer: ${h.transcribedAnswer}\nDelivery Analysis: Pace ${h.analysis.speechPace.toFixed(0)} WPM, Volume ${h.analysis.volumeLevel.toFixed(2)}, Eye Contact ${h.analysis.eyeContactPercentage}%`
     ).join('\n\n');
 
-    // --- MODIFIKASI PROMPT ---
     const prompt = `
       Based on the following complete interview transcript and delivery analysis, provide a comprehensive summary of the candidate's performance.
 

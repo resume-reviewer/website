@@ -1,4 +1,3 @@
-// File: /components/jobs/JobCard.tsx
 'use client';
 
 import { useState } from 'react';
@@ -14,7 +13,6 @@ interface JobCardProps {
 
 const KANBAN_STATUSES: JobApplication['status'][] = ['Saved', 'Applied', 'Interview', 'Offer', 'Rejected'];
 
-// Helper untuk styling priority
 const PRIORITY_STYLES = {
   high: { icon: <FaFire />, color: 'text-red-500', bg: 'bg-red-100' },
   medium: { icon: <FaBolt />, color: 'text-yellow-500', bg: 'bg-yellow-100' },
@@ -45,17 +43,15 @@ export default function JobCard({ job, onStatusChange }: JobCardProps) {
             body: JSON.stringify({ status: newStatus }),
         });
         if (!response.ok) throw new Error('Failed to update status');
-        onStatusChange(job.id!, newStatus); // Update state di parent component
+        onStatusChange(job.id!, newStatus);
       } catch (error) {
         console.error("Error updating status:", error);
-        // Bisa tambahkan notifikasi error untuk user
       } finally {
         setIsUpdating(false);
       }
   };
-// --- FUNGSI UNTUK MEMULAI INTERVIEW ---
   const handlePracticeInterview = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation(); // Mencegah menu tertutup jika sedang terbuka
+    e.stopPropagation();
     localStorage.setItem('interview_job_context', JSON.stringify({
       job_title: job.job_title,
       company_name: job.company_name,

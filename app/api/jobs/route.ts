@@ -69,8 +69,8 @@ export async function POST(request: NextRequest) {
       .from('jobs')
       .insert({
         user_id: session.user.id,
-        job_title: job_title, // Gunakan variabel snake_case
-        company_name: company_name, // Gunakan variabel snake_case
+        job_title: job_title, 
+        company_name: company_name, 
         location: location,
         job_url: job_url,
         job_description: job_description,

@@ -6,6 +6,7 @@ import AnalysisResult from "@/components/resume-reviewer/analysis-result"
 import type { ResumeAnalysis } from "@/lib/types-and-utils"
 import { FaBrain, FaRocket, FaFileAlt, FaChartLine, FaArrowLeft } from "react-icons/fa"
 import Link from "next/link"
+import Sidebar from "@/components/layout/Sidebar"
 
 export default function ResumeReviewerPage() {
   const [analysis, setAnalysis] = useState<ResumeAnalysis | null>(null)
@@ -23,18 +24,12 @@ export default function ResumeReviewerPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50 to-blue-50">
+      <Sidebar />
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-xl border-b border-slate-200/50 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link
-                href="/dashboard"
-                className="flex items-center gap-2 px-4 py-2 bg-white/60 backdrop-blur-sm text-slate-600 rounded-xl border border-slate-200 hover:bg-white hover:text-[#3B6597] hover:border-[#7DD5DB] transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
-              >
-                <FaArrowLeft />
-                <span className="font-semibold">Back to Dashboard</span>
-              </Link>
             </div>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#7DD5DB] to-[#3B6597] flex items-center justify-center shadow-lg">
