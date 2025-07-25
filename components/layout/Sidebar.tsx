@@ -1,3 +1,4 @@
+// File: /components/layout/Sidebar.tsx
 "use client"
 
 import Link from "next/link"
@@ -21,14 +22,14 @@ import {
   FaSun,
   FaChevronLeft,
   FaChevronRight,
-  FaChartLine, 
+  FaChartLine,
 } from "react-icons/fa"
 
 const NAV_ITEMS = [
   {
-    href: "/dashboard", 
+    href: "/dashboard",
     icon: <FaThLarge />,
-    label: "Tracker", 
+    label: "Tracker",
     description: "Track job applications",
     badge: null,
   },
@@ -61,8 +62,8 @@ const NAV_ITEMS = [
     badge: "AI",
   },
   {
-    href: "/personal-dashboard", 
-    icon: <FaChartLine />, 
+    href: "/personal-dashboard",
+    icon: <FaChartLine />,
     label: "Personal Dashboard",
     description: "Overview & analytics",
     badge: null,
@@ -70,19 +71,45 @@ const NAV_ITEMS = [
 ]
 
 
-const QUICK_STATS = [
-  { label: "Active Applications", value: "1", color: "text-blue-600" },
-  { label: "This Week", value: "1", color: "text-green-600" },
-  { label: "Interviews", value: "1", color: "text-purple-600" },
-]
-
 export default function Sidebar() {
   const pathname = usePathname()
   const { data: session } = useSession()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(false)
-  const [notifications, setNotifications] = useState(3)
+  const [notifications, setNotifications] = useState(3) // Tetap hardcoded atau bisa dibuat dinamis nanti
+
+  // State baru untuk data Quick Stats
+  const [quickStats, setQuickStats] = useState({
+    activeApplications: 0,
+    thisWeek: 0,
+    interviews: 0,
+  });
+
+  // Fetch Quick Stats from API
+  useEffect(() => {
+    const fetchQuickStats = async () => {
+      if (session?.user?.id) { // Pastikan user sudah login
+        try {
+          const response = await fetch('/api/dashboard-data');
+          if (response.ok) {
+            const data = await response.json();
+            setQuickStats({
+              activeApplications: data.applications.total, // Menggunakan total applications sebagai active
+              thisWeek: data.applications.thisWeek,
+              interviews: data.applications.interviewCount, // Asumsi ada field interviewJobs atau filter dari total
+            });
+          } else {
+            console.error('Failed to fetch quick stats:', response.statusText);
+          }
+        } catch (error) {
+          console.error('Error fetching quick stats:', error);
+        }
+      }
+    };
+
+    fetchQuickStats();
+  }, [session]); // Jalankan fetch saat sesi berubah (misal: user login)
 
   // Get user initials
   const getUserInitials = (email?: string | null) => {
@@ -119,16 +146,24 @@ export default function Sidebar() {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
+  // Definisikan QUICK_STATS dinamis berdasarkan state
+  const DYNAMIC_QUICK_STATS = [
+    { label: "Active Applications", value: quickStats.activeApplications, color: "text-blue-600" },
+    { label: "This Week", value: quickStats.thisWeek, color: "text-green-600" },
+    { label: "Interviews", value: quickStats.interviews, color: "text-purple-600" },
+  ];
+
+
   return (
     <aside className={`sidebar ${isCollapsed ? "collapsed" : ""} transition-all duration-300 ease-in-out`}>
       {/* Enhanced Header */}
       <div className="sidebar-header relative">
         <div className="flex items-center justify-between">
           <div className={`logo transition-all duration-300 ${isCollapsed ? "scale-75" : ""}`}>
-            <Image 
+            <Image
               src={isCollapsed ? "/media/logo-icon.png" : "/media/logo.png"}
-              alt="CareerPilot Logo" 
-              width={isCollapsed ? 40 : 160} 
+              alt="CareerPilot Logo"
+              width={isCollapsed ? 40 : 160}
               height={40}
               className="object-contain"
             />
@@ -151,7 +186,7 @@ export default function Sidebar() {
           <div className="mt-6 bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
             <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Quick Stats</h4>
             <div className="space-y-2">
-              {QUICK_STATS.map((stat, index) => (
+              {DYNAMIC_QUICK_STATS.map((stat, index) => (
                 <div key={index} className="flex items-center justify-between">
                   <span className="text-xs text-slate-600">{stat.label}</span>
                   <span className={`text-sm font-bold ${stat.color}`}>{stat.value}</span>

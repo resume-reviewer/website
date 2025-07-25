@@ -16,6 +16,7 @@ import {
   FaTimes,
   FaCalendarAlt,
   FaBuilding,
+  FaEdit, // Import FaEdit
 } from "react-icons/fa"
 import {
   FcLowPriority,
@@ -70,31 +71,44 @@ export default function JobTrackerPage() {
   const [error, setError] = useState("")
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedFilter, setSelectedFilter] = useState<"all" | "high" | "medium" | "low">("all")
-  const [draggedJob, setDraggedJob] = useState<JobApplication | null>(null); // State untuk pekerjaan yang sedang di-drag
+  const [draggedJob, setDraggedJob] = useState<JobApplication | null>(null);
+
+  const fetchJobs = useCallback(async () => { // Gunakan useCallback agar tidak dibuat ulang setiap render
+    setIsLoading(true);
+    setError("");
+    try {
+      const response = await fetch("/api/jobs");
+      if (!response.ok) {
+        throw new Error("Failed to fetch jobs");
+      }
+      const data = await response.json();
+      setJobs(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []); // Dependensi kosong karena tidak bergantung pada state/props apa pun
 
   useEffect(() => {
-    const fetchJobs = async () => {
-      setIsLoading(true)
-      setError("")
-      try {
-        const response = await fetch("/api/jobs")
-        if (!response.ok) {
-          throw new Error("Failed to fetch jobs")
-        }
-        const data = await response.json()
-        setJobs(data)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred")
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    fetchJobs()
-  }, [])
+    fetchJobs();
+  }, [fetchJobs]); // Panggil fetchJobs saat komponen dimount atau fetchJobs berubah
 
   const handleStatusChange = useCallback((jobId: string, newStatus: JobApplication["status"]) => {
     setJobs((prevJobs) => prevJobs.map((job) => (job.id === jobId ? { ...job, status: newStatus } : job)))
-  }, [])
+  }, []);
+
+  // Handler baru untuk menghapus pekerjaan dari state
+  const handleDeleteJob = useCallback((jobId: string) => {
+    setJobs((prevJobs) => prevJobs.filter((job) => job.id !== jobId));
+  }, []);
+
+  // Handler baru untuk mengedit pekerjaan di state
+  const handleEditJob = useCallback((updatedJob: JobApplication) => {
+    setJobs((prevJobs) =>
+      prevJobs.map((job) => (job.id === updatedJob.id ? updatedJob : job))
+    );
+  }, []);
 
   const filteredJobs = useMemo(() => {
     return jobs.filter((job) => {
@@ -164,18 +178,18 @@ export default function JobTrackerPage() {
       count: jobs.filter((j) => j.priority === "low").length,
       color: "text-green-600",
     },
-  ]
+  ];
 
   // Handler untuk memulai drag
   const handleDragStart = (e: React.DragEvent, job: JobApplication) => {
     setDraggedJob(job);
     e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("text/plain", job.id!); // Kirim ID pekerjaan
+    e.dataTransfer.setData("text/plain", job.id!);
   };
 
   // Handler untuk event drag over (memungkinkan drop)
   const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault(); // Penting: mencegah perilaku default untuk memungkinkan drop
+    e.preventDefault();
     e.dataTransfer.dropEffect = "move";
   };
 
@@ -184,13 +198,12 @@ export default function JobTrackerPage() {
     e.preventDefault();
     if (!draggedJob) return;
 
-    // Pastikan status yang di-drop berbeda dari status saat ini
     if (draggedJob.status === newStatus) {
       setDraggedJob(null);
       return;
     }
 
-    setIsLoading(true); // Tampilkan loading saat update status
+    setIsLoading(true);
     setError("");
 
     try {
@@ -205,7 +218,6 @@ export default function JobTrackerPage() {
         throw new Error(errorData.error || "Failed to update job status.");
       }
 
-      // Update state lokal setelah sukses
       setJobs((prevJobs) =>
         prevJobs.map((job) => (job.id === draggedJob.id ? { ...job, status: newStatus } : job))
       );
@@ -214,7 +226,7 @@ export default function JobTrackerPage() {
       console.error("Error updating job status via drag-and-drop:", err);
     } finally {
       setIsLoading(false);
-      setDraggedJob(null); // Reset dragged job
+      setDraggedJob(null);
     }
   };
 
@@ -222,9 +234,7 @@ export default function JobTrackerPage() {
     <div className="flex min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50 to-blue-50">
       <Sidebar />
 
-      {/* Main Content */}
       <main className="main-content">
-        {/* Enhanced Header */}
         <div className="bg-white/80 backdrop-blur-xl border-b border-slate-200/50 sticky top-0 z-50">
           <div className="px-8 py-6">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
@@ -234,7 +244,7 @@ export default function JobTrackerPage() {
                     <FaThLarge className="text-white text-xl" />
                   </div>
                   <div>
-                    <h1 className="text-2xl font-black bg-gradient-to-r from-[#3B6597] to-[#7DD5DB] bg-clip-text text-transparent"> {/* Changed text-3xl to text-2xl */}
+                    <h1 className="text-2xl font-black bg-gradient-to-r from-[#3B6597] to-[#7DD5DB] bg-clip-text text-transparent">
                       Job Tracker
                     </h1>
                     <p className="text-slate-600 font-medium">Track and manage your job search progress</p>
@@ -243,7 +253,6 @@ export default function JobTrackerPage() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
-                {/* Search */}
                 <div className="relative">
                   <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
@@ -255,7 +264,6 @@ export default function JobTrackerPage() {
                   />
                 </div>
 
-                {/* Add Job Button */}
                 <Link
                   href="/jobs/add"
                   className="flex items-center gap-3 bg-gradient-to-r from-[#7DD5DB] to-[#3B6597] text-white px-6 py-3 rounded-xl font-bold shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl group whitespace-nowrap"
@@ -268,7 +276,6 @@ export default function JobTrackerPage() {
           </div>
         </div>
 
-        {/* Priority Filters */}
         <div className="px-8 py-6 bg-white/40 backdrop-blur-sm border-b border-slate-200/50">
           <div className="flex flex-wrap gap-3">
             {priorityFilters.map((filter) => (
@@ -290,10 +297,8 @@ export default function JobTrackerPage() {
           </div>
         </div>
 
-        {/* Enhanced Stats Section */}
         <div className="px-8 py-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-6 mb-8">
-            {/* Main Stats */}
             {KANBAN_COLUMNS.map((column) => (
               <div
                 key={column.title}
@@ -313,7 +318,6 @@ export default function JobTrackerPage() {
               </div>
             ))}
 
-            {/* Additional Stats */}
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-slate-200 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#7DD5DB] to-[#3B6597] flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -339,7 +343,6 @@ export default function JobTrackerPage() {
             </div>
           </div>
 
-          {/* Quick Actions */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <Link
               href="/jobs/add"
@@ -387,81 +390,64 @@ export default function JobTrackerPage() {
             </Link>
           </div>
 
-          {/* Enhanced Kanban Board */}
-          {isLoading ? (
-            <div className="flex items-center justify-center py-20">
-              <div className="text-center">
-                <div className="w-16 h-16 border-4 border-[#7DD5DB] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <p className="text-slate-600 font-medium">Loading your jobs...</p>
+          <div className="bg-white/60 backdrop-blur-sm rounded-3xl border border-slate-200 p-8 shadow-xl">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-bold text-slate-800">Application Pipeline</h2>
+              <div className="text-sm text-slate-600">
+                Showing {filteredJobs.length} of {jobs.length} jobs
               </div>
             </div>
-          ) : error ? (
-            <div className="bg-red-50 border border-red-200 rounded-2xl p-8 text-center">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FaTimes className="text-red-600 text-xl" />
-              </div>
-              <h3 className="text-lg font-bold text-red-800 mb-2">Error Loading Jobs</h3>
-              <p className="text-red-600">{error}</p>
-            </div>
-          ) : (
-            <div className="bg-white/60 backdrop-blur-sm rounded-3xl border border-slate-200 p-8 shadow-xl">
-              <div className="flex items-center justify-between mb-8">
-                <h2 className="text-2xl font-bold text-slate-800">Application Pipeline</h2>
-                <div className="text-sm text-slate-600">
-                  Showing {filteredJobs.length} of {jobs.length} jobs
-                </div>
-              </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                {KANBAN_COLUMNS.map((column) => (
-                  <div
-                    key={column.title}
-                    // Tambahkan event handler drag-and-drop ke setiap kolom
-                    onDragOver={handleDragOver}
-                    onDrop={(e) => handleDrop(e, column.title)}
-                    className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 shadow-lg"
-                  >
-                    <div className="p-6 border-b border-slate-200">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-8 h-8 rounded-lg ${column.bgColor} flex items-center justify-center shadow-sm`}>
-                            <span className={`${column.color} text-sm`}>{column.icon}</span>
-                          </div>
-                          <h3 className="font-bold text-slate-800">{column.title}</h3>
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+              {KANBAN_COLUMNS.map((column) => (
+                <div
+                  key={column.title}
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, column.title)}
+                  className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 shadow-lg"
+                >
+                  <div className="p-6 border-b border-slate-200">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-8 h-8 rounded-lg ${column.bgColor} flex items-center justify-center shadow-sm`}>
+                          <span className={`${column.color} text-sm`}>{column.icon}</span>
                         </div>
-                        <div className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-sm font-bold">
-                          {filteredJobs.filter((j) => j.status === column.title).length}
-                        </div>
+                        <h3 className="font-bold text-slate-800">{column.title}</h3>
+                      </div>
+                      <div className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-sm font-bold">
+                        {filteredJobs.filter((j) => j.status === column.title).length}
                       </div>
                     </div>
-
-                    <div className="p-4 space-y-4 min-h-[500px]">
-                      {filteredJobs
-                        .filter((j) => j.status === column.title)
-                        .map((job) => (
-                          <JobCard 
-                            key={job.id} 
-                            job={job} 
-                            onStatusChange={handleStatusChange} 
-                            onDragStart={handleDragStart} // Teruskan prop onDragStart
-                          />
-                        ))}
-
-                      {filteredJobs.filter((j) => j.status === column.title).length === 0 && (
-                        <div className="text-center py-12">
-                          <div className={`w-16 h-16 ${column.bgColor} rounded-full flex items-center justify-center mx-auto mb-4 shadow-md`}>
-                            <span className={`${column.color} text-xl`}>{column.icon}</span>
-                          </div>
-                          <p className="text-slate-500 font-medium">No {column.title.toLowerCase()} jobs</p>
-                          <p className="text-sm text-slate-400">Jobs will appear here when you add them</p>
-                        </div>
-                      )}
-                    </div>
                   </div>
-                ))}
-              </div>
+
+                  <div className="p-4 space-y-4 min-h-[500px]">
+                    {filteredJobs
+                      .filter((j) => j.status === column.title)
+                      .map((job) => (
+                        <JobCard
+                          key={job.id}
+                          job={job}
+                          onStatusChange={handleStatusChange}
+                          onDragStart={handleDragStart}
+                          onDeleteSuccess={handleDeleteJob} // Teruskan handler delete
+                          onEditSuccess={handleEditJob} // Teruskan handler edit
+                        />
+                      ))}
+
+                    {filteredJobs.filter((j) => j.status === column.title).length === 0 && (
+                      <div className="text-center py-12">
+                        <div className={`w-16 h-16 ${column.bgColor} rounded-full flex items-center justify-center mx-auto mb-4 shadow-md`}>
+                          <span className={`${column.color} text-xl`}>{column.icon}</span>
+                        </div>
+                        <p className="text-slate-500 font-medium">No {column.title.toLowerCase()} jobs</p>
+                        <p className="text-sm text-slate-400">Jobs will appear here when you add them</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
-          )}
+          </div>
         </div>
       </main>
     </div>

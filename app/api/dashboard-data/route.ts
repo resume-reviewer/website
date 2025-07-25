@@ -41,6 +41,11 @@ export async function GET(request: NextRequest) {
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(now.getDate() - 7);
 
+     // Filter pekerjaan berdasarkan status untuk menghitung jumlah mutlak
+    const appliedJobsCount = jobs.filter(job => job.status === 'Applied').length;
+    const interviewJobsCount = jobs.filter(job => job.status === 'Interview').length;
+    const offerJobsCount = jobs.filter(job => job.status === 'Offer').length;
+
     const dashboardData: any = {
       user: {
         name: session.user.name || session.user.email?.split('@')[0] || 'User',
@@ -59,6 +64,8 @@ export async function GET(request: NextRequest) {
         responseRate: 0, 
         interviewRate: 0, 
         offerRate: 0, 
+        interviewCount: interviewJobsCount,
+        activeApplicationsCount: jobs.filter(job => job.status !== 'Rejected' && job.status !== 'Offer').length, 
       },
       topRoles: [],
       companies: [],
