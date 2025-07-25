@@ -19,8 +19,8 @@ import {
   FaBell,
   FaMoon,
   FaSun,
-  FaExpand,
-  FaCompress,
+  FaChevronLeft,
+  FaChevronRight,
   FaChartLine, 
 } from "react-icons/fa"
 
@@ -126,7 +126,7 @@ export default function Sidebar() {
         <div className="flex items-center justify-between">
           <div className={`logo transition-all duration-300 ${isCollapsed ? "scale-75" : ""}`}>
             <Image 
-              src="/media/logo.png" 
+              src={isCollapsed ? "/media/logo-icon.png" : "/media/logo.png"}
               alt="CareerPilot Logo" 
               width={isCollapsed ? 40 : 160} 
               height={40}
@@ -139,9 +139,9 @@ export default function Sidebar() {
             className="w-8 h-8 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all duration-300 group"
           >
             {isCollapsed ? (
-              <FaExpand className="text-slate-600 text-sm group-hover:scale-110 transition-transform" />
+              <FaChevronRight className="text-slate-600 text-sm group-hover:scale-110 transition-transform" />
             ) : (
-              <FaCompress className="text-slate-600 text-sm group-hover:scale-110 transition-transform" />
+              <FaChevronLeft className="text-slate-600 text-sm group-hover:scale-110 transition-transform" />
             )}
           </button>
         </div>
@@ -192,7 +192,7 @@ export default function Sidebar() {
                             {item.description}
                           </div>
                         </div>
-                        {item.badge && <span className="nav-badge ml-2 text-blue-700">{item.badge}</span>}
+                        {item.badge && <span className="nav-badge ml-2 text-[#7DD5DB]">{item.badge}</span>}
                       </div>
                     </div>
                   )}
