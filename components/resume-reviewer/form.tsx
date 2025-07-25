@@ -625,7 +625,7 @@ export default function ResumeReviewerForm({ onAnalysisComplete }: ResumeReviewe
             <button
               type="button"
               onClick={nextStep}
-              className="flex items-center gap-3 bg-gradient-to-r from-[#7DD5DB] to-[#3B6597] text-white px-8 py-4 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"
+              className="flex items-center mb-4 gap-3 bg-gradient-to-r from-[#7DD5DB] to-[#3B6597] text-white px-8 py-4 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"
             >
               Next Step
               <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
