@@ -43,14 +43,14 @@ export default function LiveInterview({ interviewContext, onInterviewComplete }:
 
   const {
     videoRef,
-    initialize,
+    initialize, 
     isEngineReady,
     engineStatus,
     isListening,
     transcribedText,
     startAnswering,
     stopAnswering,
-  } = useInterviewEngine(interviewContext.language); 
+  } = useInterviewEngine(); 
 
   const mapContextToApiPayload = (context: InterviewContext) => ({
     jobTitle: context.job_title,
@@ -59,8 +59,10 @@ export default function LiveInterview({ interviewContext, onInterviewComplete }:
   })
 
   useEffect(() => {
-    initialize()
-  }, [initialize])
+    if (interviewContext?.language) {
+      initialize(interviewContext.language); 
+    }
+  }, [initialize, interviewContext]);
 
   useEffect(() => {
     if (!isEngineReady || !interviewContext) return
