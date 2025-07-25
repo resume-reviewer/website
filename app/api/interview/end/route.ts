@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
-import { AnswerPayload } from '@/lib/types-and-utils';
+import { AnswerPayload } from '@/lib/types-and-utils'; 
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY!);
 
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const historyText = history.map((h: AnswerPayload) => 
-      `Q: ${h.question}\nAnswer: ${h.transcribedAnswer}\nDelivery Analysis: Pace ${h.analysis.speechPace.toFixed(0)} WPM, Volume ${h.analysis.volumeLevel.toFixed(2)}, Eye Contact ${h.analysis.eyeContactPercentage}%`
+      `Q: ${h.question}\nAnswer: ${h.transcribedAnswer}\nDelivery Analysis: Pace ${h.analysis.speechPace.toFixed(0)} WPM, Volume ${h.analysis.volumeLevel.toFixed(2)}, Eye Contact ${h.analysis.eyeContactPercentage.toFixed(0)}%`
     ).join('\n\n');
 
     const prompt = `
@@ -34,7 +34,12 @@ export async function POST(request: NextRequest) {
           "content": ["Specific advice on improving answer content 1.", "Suggestion for content 2."],
           "delivery": ["Advice on delivery, e.g., 'Try to speak a bit more slowly to sound more deliberate.'", "Advice on body language, e.g., 'Your eye contact was good, keep it up.'"]
         },
-        "performanceMetrics": ${JSON.stringify(history.map(h => ({ question: h.question, speechPace: h.analysis.speechPace, volumeLevel: h.analysis.volumeLevel })))}
+        "performanceMetrics": ${JSON.stringify(history.map(h => ({
+          question: h.question,
+          speechPace: h.analysis.speechPace,
+          volumeLevel: h.analysis.volumeLevel,
+          eyeContactPercentage: h.analysis.eyeContactPercentage
+        })))}
       }
     `;
 

@@ -1,28 +1,33 @@
+// File: /components/jobs/JobCard.tsx
 'use client';
 
 import { useState } from 'react';
 import { JobApplication } from '@/lib/types-and-utils';
-import { FaMapMarkerAlt, FaEllipsisV, FaBuilding, FaFire, FaBolt, FaLeaf, FaMicrophone, FaDollarSign } from 'react-icons/fa';
-import { formatDistanceToNow, parseISO } from 'date-fns';
+import { FaMapMarkerAlt, FaEllipsisV, FaBuilding, FaFire, FaBolt, FaLeaf, FaMicrophone, FaDollarSign, FaExternalLinkAlt, FaTimes } from 'react-icons/fa';
+import { formatDistanceToNow, parseISO, format } from 'date-fns';
 import { useRouter } from 'next/navigation';
 
 interface JobCardProps {
   job: JobApplication;
   onStatusChange: (jobId: string, newStatus: JobApplication['status']) => void;
+  // Tambahkan onDragStart dan onDragEnd untuk fitur drag-and-drop
+  onDragStart: (e: React.DragEvent, job: JobApplication) => void;
 }
 
 const KANBAN_STATUSES: JobApplication['status'][] = ['Saved', 'Applied', 'Interview', 'Offer', 'Rejected'];
 
+// Helper untuk styling priority
 const PRIORITY_STYLES = {
   high: { icon: <FaFire />, color: 'text-red-500', bg: 'bg-red-100' },
   medium: { icon: <FaBolt />, color: 'text-yellow-500', bg: 'bg-yellow-100' },
   low: { icon: <FaLeaf />, color: 'text-green-500', bg: 'bg-green-100' },
 };
 
-export default function JobCard({ job, onStatusChange }: JobCardProps) {
+export default function JobCard({ job, onStatusChange, onDragStart }: JobCardProps) {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false); // State untuk modal detail
 
   const getCompanyInitial = (name: string) => name ? name.charAt(0).toUpperCase() : <FaBuilding/>;
   const priority = job.priority || 'medium';
@@ -43,15 +48,17 @@ export default function JobCard({ job, onStatusChange }: JobCardProps) {
             body: JSON.stringify({ status: newStatus }),
         });
         if (!response.ok) throw new Error('Failed to update status');
-        onStatusChange(job.id!, newStatus);
+        onStatusChange(job.id!, newStatus); // Update state di parent component
       } catch (error) {
         console.error("Error updating status:", error);
+        // Bisa tambahkan notifikasi error untuk user
       } finally {
         setIsUpdating(false);
       }
   };
+
   const handlePracticeInterview = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
+    e.stopPropagation(); // Mencegah menu/modal tertutup jika sedang terbuka
     localStorage.setItem('interview_job_context', JSON.stringify({
       job_title: job.job_title,
       company_name: job.company_name,
@@ -59,9 +66,16 @@ export default function JobCard({ job, onStatusChange }: JobCardProps) {
     }));
     router.push('/interview');
   };
-  
+
   return (
-    <div className={`job-card flex flex-col justify-between p-4 rounded-lg border bg-white hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ${isUpdating ? 'opacity-50' : ''}`}>
+    // Tambahkan draggable dan onDragStart
+    <div 
+      className={`job-card flex flex-col justify-between p-4 rounded-lg border bg-white hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ${isUpdating ? 'opacity-50' : ''}`}
+      draggable
+      onDragStart={(e) => onDragStart(e, job)}
+      onClick={() => setShowDetailModal(true)} // Buka modal saat kartu diklik
+      style={{ cursor: 'grab' }} // Berikan indikator visual bahwa ini bisa di-drag
+    >
       <div>
         {/* Header Kartu */}
         <div className="flex items-start justify-between mb-3">
@@ -75,7 +89,7 @@ export default function JobCard({ job, onStatusChange }: JobCardProps) {
             </div>
           </div>
           <div className="relative">
-            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 rounded-full hover:bg-gray-100 text-gray-400">
+            <button onClick={(e) => { e.stopPropagation(); setIsMenuOpen(!isMenuOpen); }} className="p-2 rounded-full hover:bg-gray-100 text-gray-400">
               <FaEllipsisV />
             </button>
             {isMenuOpen && (
@@ -83,7 +97,7 @@ export default function JobCard({ job, onStatusChange }: JobCardProps) {
                 <div className="py-1">
                   <div className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase">Move to</div>
                   {KANBAN_STATUSES.map(status => (
-                    <a key={status} href="#" onClick={(e) => { e.preventDefault(); handleStatusUpdate(status); }}
+                    <a key={status} href="#" onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleStatusUpdate(status); }}
                       className={`block px-4 py-2 text-sm ${job.status === status ? 'font-bold text-indigo-600 bg-indigo-50' : 'text-gray-700 hover:bg-gray-100'}`}>
                       {status}
                     </a>
@@ -117,6 +131,80 @@ export default function JobCard({ job, onStatusChange }: JobCardProps) {
           <span>Practice</span>
         </button>
       </div>
+
+      {/* Detail Modal */}
+      {showDetailModal && (
+        <div 
+          className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50"
+          onClick={() => setShowDetailModal(false)} // Tutup modal jika klik di luar konten
+        >
+          <div 
+            className="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg relative"
+            onClick={(e) => e.stopPropagation()} // Cegah penutupan modal saat klik di dalam konten
+          >
+            <button 
+              onClick={() => setShowDetailModal(false)} 
+              className="absolute top-3 right-3 p-2 rounded-full hover:bg-gray-100 text-gray-500"
+            >
+              <FaTimes />
+            </button>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">{job.job_title}</h2>
+            <p className="text-gray-600 mb-2 flex items-center gap-2"><FaBuilding className="text-gray-500"/> {job.company_name}</p>
+            <p className="text-gray-600 mb-4 flex items-center gap-2"><FaMapMarkerAlt className="text-gray-500"/> {job.location || 'N/A'}</p>
+            
+            {job.job_url && (
+              <a 
+                href={job.job_url} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-blue-600 hover:underline flex items-center gap-2 mb-4"
+              >
+                <FaExternalLinkAlt/> View Job Post
+              </a>
+            )}
+
+            <div className="bg-gray-50 p-4 rounded-md mb-4">
+              <h3 className="font-semibold text-gray-700 mb-2">Description</h3>
+              <p className="text-gray-800 text-sm whitespace-pre-wrap">{job.job_description || 'No description provided.'}</p>
+            </div>
+
+            {job.notes && (
+              <div className="bg-gray-50 p-4 rounded-md mb-4">
+                <h3 className="font-semibold text-gray-700 mb-2">Notes</h3>
+                <p className="text-gray-800 text-sm whitespace-pre-wrap">{job.notes}</p>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-4 text-sm bg-gray-50 p-4 rounded-md">
+                <div>
+                    <p className="text-gray-500">Status:</p>
+                    <p className="font-semibold text-gray-800">{job.status}</p>
+                </div>
+                <div>
+                    <p className="text-gray-500">Priority:</p>
+                    <p className="font-semibold text-gray-800 capitalize">{job.priority || 'Medium'}</p>
+                </div>
+                <div>
+                    <p className="text-gray-500">Salary:</p>
+                    <p className="font-semibold text-gray-800">{job.salary || 'N/A'}</p>
+                </div>
+                <div>
+                    <p className="text-gray-500">Deadline:</p>
+                    <p className="font-semibold text-gray-800">{job.application_deadline ? format(parseISO(job.application_deadline), 'dd MMM yyyy') : 'N/A'}</p>
+                </div>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button 
+                onClick={handlePracticeInterview}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 flex items-center gap-2"
+              >
+                <FaMicrophone /> Practice Interview
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
