@@ -23,30 +23,33 @@ export default function ResumeReviewerPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50 to-blue-50">
+    <div className="flex min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50 to-blue-50">
       <Sidebar />
-      {/* Header */}
-      <div className="bg-white/80 backdrop-blur-xl border-b border-slate-200/50 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#7DD5DB] to-[#3B6597] flex items-center justify-center shadow-lg">
-                <FaBrain className="text-white" />
+      
+      {/* Main Content Area - Using same structure as dashboard */}
+      <main className="main-content">
+        {/* Header */}
+        <div className="bg-white/80 backdrop-blur-xl border-b border-slate-200/50 sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
               </div>
-              <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-[#3B6597] to-[#7DD5DB] bg-clip-text text-transparent">
-                  AI Resume Reviewer
-                </h1>
-                <p className="text-sm text-slate-600">Optimize your resume with AI insights</p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#7DD5DB] to-[#3B6597] flex items-center justify-center shadow-lg">
+                  <FaBrain className="text-white" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold bg-gradient-to-r from-[#3B6597] to-[#7DD5DB] bg-clip-text text-transparent">
+                    AI Resume Reviewer
+                  </h1>
+                  <p className="text-sm text-slate-600">Optimize your resume with AI insights</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {!showResults ? (
           <>
             {/* Hero Section */}
@@ -176,7 +179,8 @@ export default function ResumeReviewerPage() {
             </div>
           )
         )}
-      </div>
+        </div>
+      </main>
     </div>
   )
 }

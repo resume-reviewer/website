@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { JobApplication } from '@/lib/types-and-utils';
-import { FaMapMarkerAlt, FaEllipsisV, FaBuilding, FaFire, FaBolt, FaLeaf, FaMicrophone, FaDollarSign } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaEllipsisV, FaBuilding, FaFire, FaBolt, FaLeaf, FaMicrophone, FaDollarSign, FaSquare, FaCopy, FaClone } from 'react-icons/fa';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { useRouter } from 'next/navigation';
+import { FcHighPriority, FcLowPriority, FcMediumPriority } from 'react-icons/fc';
 
 interface JobCardProps {
   job: JobApplication;
@@ -14,9 +15,9 @@ interface JobCardProps {
 const KANBAN_STATUSES: JobApplication['status'][] = ['Saved', 'Applied', 'Interview', 'Offer', 'Rejected'];
 
 const PRIORITY_STYLES = {
-  high: { icon: <FaFire />, color: 'text-red-500', bg: 'bg-red-100' },
-  medium: { icon: <FaBolt />, color: 'text-yellow-500', bg: 'bg-yellow-100' },
-  low: { icon: <FaLeaf />, color: 'text-green-500', bg: 'bg-green-100' },
+  high: { icon: <FcHighPriority />, color: 'text-red-500', bg: 'bg-red-100' },
+  medium: { icon: <FcMediumPriority />, color: 'text-yellow-500', bg: 'bg-yellow-100' },
+  low: { icon: <FcLowPriority />, color: 'text-green-500', bg: 'bg-green-100' },
 };
 
 export default function JobCard({ job, onStatusChange }: JobCardProps) {
@@ -24,31 +25,31 @@ export default function JobCard({ job, onStatusChange }: JobCardProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  const getCompanyInitial = (name: string) => name ? name.charAt(0).toUpperCase() : <FaBuilding/>;
+  const getCompanyInitial = (name: string) => name ? name.charAt(0).toUpperCase() : <FaBuilding />;
   const priority = job.priority || 'medium';
   const priorityStyle = PRIORITY_STYLES[priority];
   const getTimeAgo = (dateString: string | undefined) => {
     if (!dateString) return 'N/A';
     return `${formatDistanceToNow(parseISO(dateString))} ago`;
   };
-  
+
   const handleStatusUpdate = async (newStatus: JobApplication['status']) => {
-      if (newStatus === job.status) return;
-      setIsUpdating(true);
-      setIsMenuOpen(false);
-      try {
-        const response = await fetch(`/api/jobs/${job.id}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status: newStatus }),
-        });
-        if (!response.ok) throw new Error('Failed to update status');
-        onStatusChange(job.id!, newStatus);
-      } catch (error) {
-        console.error("Error updating status:", error);
-      } finally {
-        setIsUpdating(false);
-      }
+    if (newStatus === job.status) return;
+    setIsUpdating(true);
+    setIsMenuOpen(false);
+    try {
+      const response = await fetch(`/api/jobs/${job.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!response.ok) throw new Error('Failed to update status');
+      onStatusChange(job.id!, newStatus);
+    } catch (error) {
+      console.error("Error updating status:", error);
+    } finally {
+      setIsUpdating(false);
+    }
   };
   const handlePracticeInterview = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -59,7 +60,7 @@ export default function JobCard({ job, onStatusChange }: JobCardProps) {
     }));
     router.push('/interview');
   };
-  
+
   return (
     <div className={`job-card flex flex-col justify-between p-4 rounded-lg border bg-white hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ${isUpdating ? 'opacity-50' : ''}`}>
       <div>
@@ -93,7 +94,7 @@ export default function JobCard({ job, onStatusChange }: JobCardProps) {
             )}
           </div>
         </div>
-        
+
         {/* Detail Meta */}
         <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-gray-600 mb-4">
           <span className="flex items-center gap-1"><FaMapMarkerAlt /> {job.location || 'N/A'}</span>
@@ -103,19 +104,19 @@ export default function JobCard({ job, onStatusChange }: JobCardProps) {
           </span>
         </div>
       </div>
-      
+
       {/* Footer Kartu & Aksi */}
-      <div className="border-t pt-3 mt-2 flex items-center justify-between">
-        <p className="text-xs text-gray-400">
-          Added {getTimeAgo(job.created_at)}
-        </p>
-        <button 
+      <div className="border-t pt-3 mt-2 flex flex-col items-center justify-between">
+        <button
           onClick={handlePracticeInterview}
           className="action-btn-sm bg-indigo-100 text-indigo-700 hover:bg-indigo-200"
         >
           <FaMicrophone />
-          <span>Practice</span>
+          <span className="ml-1">Practice</span>
         </button>
+        <p className="text-xs mt-1 text-center text-gray-400">
+          Added {getTimeAgo(job.created_at)}
+        </p>
       </div>
     </div>
   );

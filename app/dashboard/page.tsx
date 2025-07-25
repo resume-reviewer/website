@@ -16,10 +16,12 @@ import {
   FaTimes,
   FaCalendarAlt,
   FaBuilding,
-  FaFire,
-  FaBolt,
-  FaLeaf,
 } from "react-icons/fa"
+import {
+  FcLowPriority,
+  FcMediumPriority,
+  FcHighPriority,
+} from "react-icons/fc"
 import { useSession } from "next-auth/react"
 import Sidebar from "@/components/layout/Sidebar"
 
@@ -29,37 +31,37 @@ const KANBAN_COLUMNS: {
   color: string
   bgColor: string
 }[] = [
-  {
-    title: "Saved",
-    icon: <FaBookmark />,
-    color: "text-blue-600",
-    bgColor: "bg-blue-50 border-blue-200",
-  },
-  {
-    title: "Applied",
-    icon: <FaPaperPlane />,
-    color: "text-orange-600",
-    bgColor: "bg-orange-50 border-orange-200",
-  },
-  {
-    title: "Interview",
-    icon: <FaMicrophone />,
-    color: "text-purple-600",
-    bgColor: "bg-purple-50 border-purple-200",
-  },
-  {
-    title: "Offer",
-    icon: <FaTrophy />,
-    color: "text-green-600",
-    bgColor: "bg-green-50 border-green-200",
-  },
-  {
-    title: "Rejected",
-    icon: <FaTimes />,
-    color: "text-red-600",
-    bgColor: "bg-red-50 border-red-200",
-  },
-]
+    {
+      title: "Saved",
+      icon: <FaBookmark />,
+      color: "text-white",
+      bgColor: "bg-gradient-to-br from-[#7DD5DB] to-[#5BC5CA]",
+    },
+    {
+      title: "Applied",
+      icon: <FaPaperPlane />,
+      color: "text-white",
+      bgColor: "bg-gradient-to-br from-[#6BA8D4] to-[#4A89C4]",
+    },
+    {
+      title: "Interview",
+      icon: <FaMicrophone />,
+      color: "text-white",
+      bgColor: "bg-gradient-to-br from-[#8A7BD5] to-[#6A5AC4]",
+    },
+    {
+      title: "Offer",
+      icon: <FaTrophy />,
+      color: "text-white",
+      bgColor: "bg-gradient-to-br from-[#7DD5A8] to-[#5BC587]",
+    },
+    {
+      title: "Rejected",
+      icon: <FaTimes />,
+      color: "text-white",
+      bgColor: "bg-gradient-to-br from-[#D57D8A] to-[#C45B6A]",
+    },
+  ]
 
 export default function JobTrackerPage() {
   const { data: session } = useSession()
@@ -143,21 +145,21 @@ export default function JobTrackerPage() {
     {
       value: "high",
       label: "High Priority",
-      icon: <FaFire />,
+      icon: <FcHighPriority />,
       count: jobs.filter((j) => j.priority === "high").length,
       color: "text-red-600",
     },
     {
       value: "medium",
       label: "Medium Priority",
-      icon: <FaBolt />,
+      icon: <FcMediumPriority />,
       count: jobs.filter((j) => j.priority === "medium").length,
       color: "text-yellow-600",
     },
     {
       value: "low",
       label: "Low Priority",
-      icon: <FaLeaf />,
+      icon: <FcLowPriority />,
       count: jobs.filter((j) => j.priority === "low").length,
       color: "text-green-600",
     },
@@ -215,11 +217,10 @@ export default function JobTrackerPage() {
               <button
                 key={filter.value}
                 onClick={() => setSelectedFilter(filter.value as any)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-300 ${
-                  selectedFilter === filter.value
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-300 ${selectedFilter === filter.value
                     ? "bg-white shadow-lg border-2 border-[#7DD5DB] text-[#3B6597] scale-105"
                     : "bg-white/60 backdrop-blur-sm border border-slate-200 text-slate-600 hover:bg-white hover:shadow-md hover:-translate-y-1"
-                }`}
+                  }`}
               >
                 <span className={filter.color || "text-slate-600"}>{filter.icon}</span>
                 {filter.label}
@@ -240,9 +241,9 @@ export default function JobTrackerPage() {
               >
                 <div className="flex items-center gap-4">
                   <div
-                    className={`w-14 h-14 rounded-xl ${column.bgColor} border flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}
+                    className={`w-14 h-14 rounded-xl ${column.bgColor} flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-md`}
                   >
-                    <span className={`text-xl ${column.color}`}>{column.icon}</span>
+                    <span className={`text-xl mx-2 ${column.color}`}>{column.icon}</span>
                   </div>
                   <div>
                     <div className="text-2xl font-black text-slate-800">{stats[column.title] || 0}</div>
@@ -313,7 +314,7 @@ export default function JobTrackerPage() {
               className="group bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
             >
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#25f53e] to-emerald-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                   <FaMicrophone className="text-white" />
                 </div>
                 <div>
@@ -357,7 +358,9 @@ export default function JobTrackerPage() {
                     <div className="p-6 border-b border-slate-200">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <span className={`${column.color} text-lg`}>{column.icon}</span>
+                          <div className={`w-8 h-8 rounded-lg ${column.bgColor} flex items-center justify-center shadow-sm`}>
+                            <span className={`${column.color} text-sm`}>{column.icon}</span>
+                          </div>
                           <h3 className="font-bold text-slate-800">{column.title}</h3>
                         </div>
                         <div className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-sm font-bold">
@@ -375,8 +378,8 @@ export default function JobTrackerPage() {
 
                       {filteredJobs.filter((j) => j.status === column.title).length === 0 && (
                         <div className="text-center py-12">
-                          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <span className="text-slate-400 text-xl">{column.icon}</span>
+                          <div className={`w-16 h-16 ${column.bgColor} rounded-full flex items-center justify-center mx-auto mb-4 shadow-md`}>
+                            <span className={`${column.color} text-xl`}>{column.icon}</span>
                           </div>
                           <p className="text-slate-500 font-medium">No {column.title.toLowerCase()} jobs</p>
                           <p className="text-sm text-slate-400">Jobs will appear here when you add them</p>
